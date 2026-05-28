@@ -574,7 +574,7 @@ const PageManager = {
     const createSignIn = () => {
       const a = document.createElement('a');
       a.className = 'nav-cta';
-      a.href = '/pages/login.html';
+      a.href = '/login.html';
       a.textContent = 'SIGN IN';
       // preserve some styling via inline styles so replacement looks identical
       a.style.background = 'var(--red)';
@@ -589,12 +589,8 @@ const PageManager = {
     window.gotoLogin = function() {
       // clear admin session if present
       try { StorageManager.setCurrentAdmin(null); } catch (e) {}
-      const currentPath = window.location.pathname;
-      if (currentPath.includes('/pages/')) {
-        window.location.href = 'login.html';
-      } else {
-        window.location.href = '/pages/login.html';
-      }
+      // Redirect to login (pages dir is root on Vercel)
+      window.location.href = '/login.html';
     };
 
     const createUserCta = (userName) => {
@@ -686,7 +682,7 @@ const PageManager = {
   initDashboardPage() {
     // ISSUE #1 FIX: Check login BEFORE rendering
     if (!AuthManager.isLoggedIn()) {
-      window.location.href = '/pages/login.html';
+      window.location.href = '/login.html';
       return;
     }
     
@@ -786,8 +782,8 @@ window.handleLogin = async function(emailArg, passwordArg) {
   if (result.success) {
     UIManager.showNotification('Login successful!', 'success');
     setTimeout(() => {
-      // Use absolute path to avoid any redirect confusion
-      window.location.href = '/pages/dashboard.html';
+      // Redirect to dashboard (pages dir is root on Vercel)
+      window.location.href = '/dashboard.html';
     }, 700);
   } else {
     // show inline-friendly message when login page present
@@ -811,8 +807,8 @@ window.handleRegister = async function(emailArg, passwordArg, nameArg) {
   if (result.success) {
     UIManager.showNotification('Registration successful! Redirecting to dashboard...', 'success');
     setTimeout(() => {
-      // Use absolute path
-      window.location.href = '/pages/dashboard.html';
+      // Redirect to dashboard (pages dir is root on Vercel)
+      window.location.href = '/dashboard.html';
     }, 700);
   } else {
     UIManager.showNotification(result.message || 'Registration failed', 'error');
@@ -972,7 +968,7 @@ window.openInvestmentModal = function(packageId) {
   // Check if user is logged in
   if (!AuthManager.isLoggedIn()) {
     // User is NOT logged in - redirect to login page
-    window.location.href = '/pages/login.html';
+    window.location.href = '/login.html';
     return;
   }
 

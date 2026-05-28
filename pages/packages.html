@@ -232,7 +232,7 @@
     <li><a href="dashboard.html">DASHBOARD</a></li>
     <li><a href="admin.html">ADMIN</a></li>
   </ul>
-  <a href="/pages/login.html" class="nav-cta">LOGIN</a>
+  <a href="/login.html" class="nav-cta">LOGIN</a>
   <div class="hamburger" onclick="document.getElementById('mobileMenu').classList.toggle('open')">
     <span></span><span></span><span></span>
   </div>
@@ -682,7 +682,7 @@ if (typeof window.openInvestmentModal === 'function') {
     updatePackageInfo(packageId);
     // redirect to login if not logged in, otherwise open modal
     if (!AuthManager.isLoggedIn()) {
-      window.location.href = '/pages/login.html?from=packages';
+      window.location.href = '/login.html?from=packages';
       return;
     }
     sessionStorage.setItem('selectedPackage', packageId);

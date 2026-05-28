@@ -533,7 +533,7 @@ const spinner = `<span class="spinner"></span>`;
     // If no token and not already in a redirect loop, send to login
     if (!fromDashboard) {
       // Use simple redirect without loop param - let login decide what to do
-      window.location.href = '/pages/login.html';
+      window.location.href = '/login.html';
       return;
     }
     // If we're here, we're already redirecting from dashboard but still no token
@@ -723,7 +723,7 @@ function submitWithdraw(){
 
 function logout(){ 
   AuthManager.logout();
-  window.location.href = '/pages/login.html'; 
+  window.location.href = '/login.html'; 
 }
 
 function toggleSidebar() {
@@ -1050,7 +1050,7 @@ function openInvestmentModal() {
   // Ensure user is logged in
   try {
     if (typeof AuthManager !== 'undefined' && !AuthManager.isLoggedIn()) {
-      window.location.href = '/pages/login.html';
+      window.location.href = '/login.html';
       return;
     }
   } catch (e) { /* ignore */ }

@@ -219,7 +219,9 @@ const StorageManager = {
 // ============================================================================
 
 const AuthManager = {
-  apiUrl: '/api',
+  get apiUrl() {
+    return StorageManager.apiUrl;
+  },
 
   async register(email, password, name) {
     try {

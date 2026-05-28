@@ -1,5 +1,17 @@
 {
   "version": 2,
   "buildCommand": "npm install && cd backend && npm install",
-  "outputDirectory": "pages"
+  "outputDirectory": "pages",
+  "functions": {
+    "api/index.js": {
+      "maxDuration": 60,
+      "memory": 512
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api"
+    }
+  ]
 }

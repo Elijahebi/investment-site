@@ -415,7 +415,7 @@ function completeInvestment(packageId) {
   }
   
   // Step 1: Create investment in MongoDB via backend
-  fetch('/api/investments', {
+  fetch('https://investment-site-production.up.railway.app/api/investments', {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -472,7 +472,7 @@ function sendReceipt(investmentId, amount, walletType, txid, packageId, token, b
     body.proofFileName = fileName;
   }
   
-  fetch('/api/payments/receipt', {
+  fetch('https://investment-site-production.up.railway.app/api/payments/receipt', {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${token}`,

@@ -634,7 +634,7 @@ function sendReceiptToBackend(txid, amount, walletType, base64Proof, fileName, t
     amount: parseFloat(amount)
   };
   
-  fetch('/api/investments', {
+  fetch('https://investment-site-production.up.railway.app/api/investments', {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -658,7 +658,7 @@ function sendReceiptToBackend(txid, amount, walletType, base64Proof, fileName, t
         receiptBody.proofFileName = fileName;
       }
       
-      fetch('/api/payments/receipt', {
+      fetch('https://investment-site-production.up.railway.app/api/payments/receipt', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -767,7 +767,7 @@ function renderStats() {
   }
 
   // Fetch real stats from backend MongoDB
-  fetch('/api/user/stats', {
+  fetch('https://investment-site-production.up.railway.app/api/user/stats', {
     headers: { 
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'
@@ -825,7 +825,7 @@ function renderInvestments() {
   
   tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:20px"><span class="spinner"></span> Loading...</td></tr>';
   
-  fetch('/api/investments', {
+  fetch('https://investment-site-production.up.railway.app/api/investments', {
     method: 'GET',
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -921,7 +921,7 @@ function renderTransactions() {
   
   tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px"><span class="spinner"></span> Loading...</td></tr>';
   
-  fetch('/api/payments/receipts', {
+  fetch('https://investment-site-production.up.railway.app/api/payments/receipts', {
     method: 'GET',
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -1002,7 +1002,7 @@ function populateUserInfo() {
   }
   
   // Fetch user profile from backend MongoDB
-  fetch('/api/user/profile', {
+  fetch('https://investment-site-production.up.railway.app/api/user/profile', {
     method: 'GET',
     headers: {
       'Authorization': `Bearer ${token}`,

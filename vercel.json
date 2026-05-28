@@ -3,16 +3,10 @@
   "buildCommand": "npm install && cd backend && npm install",
   "outputDirectory": "pages",
   "functions": {
-    "backend/api/index.js": {
+    "api/[...route].js": {
       "maxDuration": 60,
       "memory": 512,
       "runtime": "nodejs18.x"
     }
-  },
-  "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "/backend/api/index.js"
-    }
-  ]
+  }
 }

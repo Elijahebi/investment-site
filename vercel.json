@@ -1,7 +1,7 @@
 {
   "version": 2,
   "buildCommand": "cd backend && npm install",
-  "public": true,
+  "outputDirectory": "pages",
   "rewrites": [
     {
       "source": "/api/(.*)",

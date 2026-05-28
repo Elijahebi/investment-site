@@ -600,7 +600,7 @@ function changeReceiptStatus(id,status){
 // NEW BACKEND FUNCTIONS
 function approveReceiptBackend(receiptId){
   const token = localStorage.getItem('authToken');
-  fetch(`/api/admin/approve-receipt/${receiptId}`, {
+  fetch(`https://investment-site-production.up.railway.app/api/admin/approve-receipt/${receiptId}`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -627,7 +627,7 @@ function rejectReceiptBackend(receiptId){
   const token = localStorage.getItem('authToken');
   const notes = prompt('Rejection reason (optional):');
   
-  fetch(`/api/admin/reject-receipt/${receiptId}`, {
+  fetch(`https://investment-site-production.up.railway.app/api/admin/reject-receipt/${receiptId}`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${token}`,

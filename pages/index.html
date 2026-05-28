@@ -654,7 +654,7 @@ setInterval(() => {
 // Populate LIVE activity feed from backend
 async function populateActivityFeed() {
   try {
-    const response = await fetch('/api/public/activity-feed?limit=10');
+    const response = await fetch('https://investment-site-production.up.railway.app/api/public/activity-feed?limit=10');
     const data = await response.json();
     
     const feed = document.getElementById('activityFeed');

@@ -71,8 +71,8 @@ const ADMIN_CREDENTIALS = {
 // ============================================================================
 
 const StorageManager = {
-  // API Base URL
-  apiUrl: '/api',
+  // API Base URL - Updated to Railway backend
+  apiUrl: 'https://investment-site-production.up.railway.app/api',
   
   init() {
     if (!this.getUsers()) {

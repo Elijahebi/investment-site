@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "buildCommand": "npm install && cd backend && npm install",
+  "framework": "static",
+  "public": "pages",
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/index.js"
+    }
+  ],
+  "env": [
+    {
+      "key": "MONGODB_URI",
+      "description": "MongoDB Atlas connection string",
+      "value": ""
+    },
+    {
+      "key": "JWT_SECRET",
+      "description": "JWT secret key for token signing",
+      "value": ""
+    },
+    {
+      "key": "FRONTEND_URL",
+      "description": "Frontend URL for CORS",
+      "value": ""
+    }
+  ]
+}

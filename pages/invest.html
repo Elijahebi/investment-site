@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Investment Packages — TeslaInvest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root { --red:#E31937; --blue:#005288; --bg:#080808; --surface:#111111; --glass:rgba(255,255,255,0.04); --border:rgba(255,255,255,0.08); --text:#E8E8E8; --muted:#666; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif; overflow-x:hidden; }
+  h1,h2,h3,h4,nav,.logo { font-family:'Rajdhani',sans-serif; }
+  body::before { content:''; position:fixed; inset:0; background-image:linear-gradient(rgba(255,255,255,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.02) 1px,transparent 1px); background-size:60px 60px; pointer-events:none; z-index:0; }
+  .orb-red { position:fixed; width:500px; height:500px; background:radial-gradient(circle,rgba(227,25,55,0.1) 0%,transparent 70%); top:-100px; right:-100px; pointer-events:none; z-index:0; }
+  .orb-blue { position:fixed; width:600px; height:600px; background:radial-gradient(circle,rgba(0,82,136,0.08) 0%,transparent 70%); bottom:-200px; left:-200px; pointer-events:none; z-index:0; }
+
+  nav { position:fixed; top:0; left:0; right:0; z-index:100; background:rgba(8,8,8,0.85); backdrop-filter:blur(20px); border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; padding:0 5%; height:64px; }
+  .logo { font-size:1.4rem; font-weight:700; letter-spacing:2px; text-decoration:none; color:var(--text); }
+  .logo span { color:var(--red); }
+  .nav-links { display:flex; gap:2rem; list-style:none; }
+  .nav-links a { color:#999; text-decoration:none; font-size:0.95rem; letter-spacing:1px; transition:color 0.2s; font-weight:500; }
+  .nav-links a:hover,.nav-links a.active { color:#fff; }
+  .nav-cta { background:var(--red); color:#fff; border:none; padding:8px 24px; font-family:'Rajdhani',sans-serif; font-weight:700; font-size:0.9rem; letter-spacing:2px; cursor:pointer; text-decoration:none; clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%); transition:opacity 0.2s; }
+  .nav-cta:hover { opacity:0.85; }
+  .hamburger { display:none; flex-direction:column; gap:5px; cursor:pointer; }
+  .hamburger span { width:24px; height:2px; background:#fff; }
+
+  .mobile-menu { display:none; position:fixed; inset:0; background:rgba(8,8,8,0.98); z-index:99; flex-direction:column; align-items:center; justify-content:center; gap:2rem; }
+  .mobile-menu.open { display:flex; }
+  .mobile-menu a { font-family:'Rajdhani',sans-serif; font-size:1.5rem; color:#ccc; text-decoration:none; letter-spacing:3px; font-weight:600; }
+
+  .page-hero { padding: 120px 5% 60px; text-align:center; position:relative; z-index:1; }
+  .page-tag { display:inline-block; border:1px solid rgba(227,25,55,0.4); color:var(--red); padding:4px 16px; font-size:0.75rem; letter-spacing:3px; font-weight:700; margin-bottom:1.5rem; font-family:'Rajdhani',sans-serif; }
+  .page-hero h1 { font-size:clamp(2rem,5vw,3.5rem); font-weight:700; letter-spacing:3px; margin-bottom:0.75rem; }
+  .page-hero p { color:#666; font-size:0.9rem; letter-spacing:2px; font-family:'Rajdhani',sans-serif; }
+
+  /* Cards */
+  .cards-section { padding:40px 5% 80px; position:relative; z-index:1; }
+  .cards-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:2rem; perspective:1200px; }
+
+  .card-outer { height:560px; perspective:1200px; cursor:pointer; transition:height 0.3s ease; }
+  .card-outer.expanded { height:auto; min-height:800px; }
+  .card-inner { position:relative; width:100%; height:100%; transform-style:preserve-3d; transition:transform 0.7s cubic-bezier(0.4,0.2,0.2,1); }
+  .card-outer.expanded .card-inner { height:auto; }
+  .card-front,.card-back { position:absolute; inset:0; backface-visibility:hidden; -webkit-backface-visibility:hidden; border:1px solid var(--border); background:var(--surface); padding:36px; }
+  .card-outer.expanded .card-front,
+  .card-outer.expanded .card-back { position:static; inset:auto; }
+  .card-back { background:var(--glass); backdrop-filter:blur(20px); display:none; flex-direction:column; justify-content:flex-start; overflow-y:auto; }
+
+  .plan-tag { display:inline-block; padding:3px 12px; font-size:0.7rem; letter-spacing:2px; font-family:'Rajdhani',sans-serif; font-weight:700; margin-bottom:1.5rem; }
+  
+  /* Hide scroll-related styling */
+  .card-back::-webkit-scrollbar { width:6px; }
+  .card-back::-webkit-scrollbar-track { background:rgba(255,255,255,0.05); }
+  .card-back::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.15); border-radius:3px; }
+  .tag-starter { background:rgba(34,197,94,0.1); border:1px solid rgba(34,197,94,0.3); color:#22c55e; }
+  .tag-popular { background:rgba(227,25,55,0.1); border:1px solid rgba(227,25,55,0.3); color:var(--red); }
+  .tag-vip { background:rgba(0,82,136,0.2); border:1px solid rgba(0,82,136,0.5); color:#4A9FD4; }
+
+  .plan-icon { width:56px; height:56px; display:flex; align-items:center; justify-content:center; margin-bottom:1.5rem; font-size:1.8rem; }
+  .plan-name { font-size:1.5rem; font-weight:700; letter-spacing:2px; margin-bottom:0.25rem; }
+  .plan-return { font-size:3rem; font-weight:700; font-family:'Rajdhani',sans-serif; line-height:1; }
+  .plan-return-label { font-size:0.75rem; color:#666; letter-spacing:2px; margin-top:4px; font-family:'Rajdhani',sans-serif; margin-bottom:1.5rem; }
+  .plan-divider { height:1px; background:var(--border); margin:1.5rem 0; }
+  .plan-meta { display:flex; gap:1.5rem; margin-bottom:1.5rem; }
+  .plan-meta-item { text-align:center; }
+  .plan-meta-item .val { font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700; }
+  .plan-meta-item .lbl { font-size:0.65rem; color:#666; letter-spacing:1px; margin-top:2px; font-family:'Rajdhani',sans-serif; }
+  .plan-features { list-style:none; margin-bottom:1.5rem; }
+  .plan-features li { display:flex; align-items:center; gap:10px; padding:6px 0; font-size:0.85rem; color:#aaa; border-bottom:1px solid rgba(255,255,255,0.03); }
+  .plan-features li i { width:16px; font-size:0.75rem; }
+  .invest-btn { width:100%; padding:14px; font-family:'Rajdhani',sans-serif; font-weight:700; font-size:0.9rem; letter-spacing:3px; border:none; cursor:pointer; clip-path:polygon(10px 0%,100% 0%,calc(100% - 10px) 100%,0% 100%); transition:all 0.3s; }
+  .btn-green { background:#22c55e; color:#000; }
+  .btn-red { background:var(--red); color:#fff; }
+  .btn-blue { background:var(--blue); color:#fff; }
+  .invest-btn:hover { opacity:0.85; transform:scale(1.01); }
+
+  /* Back card */
+  .back-title { font-size:1rem; font-weight:700; letter-spacing:2px; margin-bottom:1.5rem; color:#aaa; font-family:'Rajdhani',sans-serif; text-align:center; }
+  .roi-row { display:flex; justify-content:space-between; margin-bottom:0.5rem; font-size:0.85rem; }
+  .roi-row .lbl { color:#666; }
+  .roi-row .val { font-weight:600; }
+  .slider-wrap { margin:1.5rem 0; }
+  .slider-wrap label { display:flex; justify-content:space-between; font-size:0.8rem; color:#666; font-family:'Rajdhani',sans-serif; margin-bottom:0.75rem; letter-spacing:1px; }
+  input[type=range] { width:100%; -webkit-appearance:none; appearance:none; height:2px; background:var(--border); outline:none; cursor:pointer; }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:16px; height:16px; background:var(--red); cursor:pointer; }
+  .roi-result { background:rgba(255,255,255,0.03); border:1px solid var(--border); padding:20px; text-align:center; margin-top:1.5rem; }
+  .roi-result .profit { font-family:'Rajdhani',sans-serif; font-size:2rem; font-weight:700; }
+  .roi-result .profit-label { font-size:0.75rem; color:#666; letter-spacing:2px; font-family:'Rajdhani',sans-serif; }
+
+  /* Popular badge */
+  .popular-wrap { position:relative; }
+  .popular-badge { position:absolute; top:-12px; left:50%; transform:translateX(-50%); background:var(--red); color:#fff; font-family:'Rajdhani',sans-serif; font-weight:700; font-size:0.7rem; letter-spacing:2px; padding:4px 16px; z-index:10; clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%); white-space:nowrap; }
+
+  .back-link { color:var(--red); text-decoration:none; font-family:'Rajdhani',sans-serif; font-weight:600; letter-spacing:1px; display:inline-flex; align-items:center; gap:8px; position:relative; z-index:2; margin:20px 5%; transition:gap 0.3s; }
+  .back-link:hover { gap:12px; }
+
+  @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+  .fade-up { animation:fadeUp 0.7s ease forwards; opacity:0; }
+  .delay-1{animation-delay:0.1s} .delay-2{animation-delay:0.2s} .delay-3{animation-delay:0.3s}
+
+  @media(max-width:768px){
+    .nav-links,.nav-cta{display:none}
+    .hamburger{display:flex}
+    .cards-grid{grid-template-columns:1fr}
+    .card-outer{height:auto}
+    .card-inner{transform-style:flat}
+    .card-front{position:relative;transform:none!important}
+    .card-back{display:none}
+    .card-outer:hover .card-inner{transform:none}
+  }
+</style>
+</head>
+<body>
+
+<div class="orb-red"></div>
+<div class="orb-blue"></div>
+
+<div class="mobile-menu" id="mobileMenu">
+  <a href="index.html">Home</a>
+  <a href="invest.html">Invest</a>
+  <a href="dashboard.html">Dashboard</a>
+  <a href="login.html">Login</a>
+  <a href="#" onclick="document.getElementById('mobileMenu').classList.remove('open')">✕ Close</a>
+</div>
+
+<nav>
+  <a href="index.html" class="logo">TESLA<span>INVEST</span></a>
+  <ul class="nav-links">
+    <li><a href="index.html">HOME</a></li>
+    <li><a href="invest.html" class="active">INVEST</a></li>
+    <li><a href="dashboard.html">DASHBOARD</a></li>
+    <li><a href="admin.html">ADMIN</a></li>
+  </ul>
+  <a href="/pages/login.html" class="nav-cta">LOGIN</a>
+  <div class="hamburger" onclick="document.getElementById('mobileMenu').classList.toggle('open')">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<a href="dashboard.html" class="back-link">
+  <i class="fas fa-arrow-left"></i> BACK TO DASHBOARD
+</a>
+
+<div class="page-hero">
+  <div class="page-tag fade-up">⚡ HIGH-YIELD PLANS</div>
+  <h1 class="fade-up delay-1">INVESTMENT PACKAGES</h1>
+  <p class="fade-up delay-2">CLICK INVEST NOW TO SELECT AMOUNT & PAYMENT METHOD</p>
+</div>
+
+<section class="cards-section">
+  <div class="cards-grid" id="packagesContainer">
+    <!-- Cards rendered here -->
+  </div>
+</section>
+
+<!-- Accepted Crypto -->
+<section class="crypto-section" style="display:none">
+  <div class="crypto-title">ACCEPTED CURRENCIES</div>
+  <div class="crypto-sub">DEPOSIT VIA ANY OF THESE NETWORKS</div>
+  <div class="crypto-grid">
+    <div class="crypto-card"><i class="fab fa-bitcoin" style="color:#F7931A"></i><h4>BITCOIN</h4><p>BTC Network</p></div>
+    <div class="crypto-card"><i class="fas fa-dollar-sign" style="color:#26A17B"></i><h4>TETHER</h4><p>USDT ERC-20</p></div>
+    <div class="crypto-card"><i class="fab fa-ethereum" style="color:#627EEA"></i><h4>ETHEREUM</h4><p>ETH Network</p></div>
+  </div>
+</section>
+
+<!-- Card-based investment panels are embedded in each card -->
+
+
+<!-- Card-based payment is on the same card-back -->
+
+<script src="../app.js"></script>
+<script>
+function renderPackages() {
+  const container = document.getElementById('packagesContainer');
+  container.innerHTML = '';
+  
+  if (typeof INVESTMENT_PACKAGES === 'undefined') {
+    container.innerHTML = '<div style="text-align:center;color:#999;grid-column:1/-1">Investment packages unavailable. Please refresh the page.</div>';
+    return;
+  }
+  
+  const colors = {
+    'starlink': { tag: 'tag-starter', btn: 'btn-green', accent: '#22c55e' },
+    'cybercab': { tag: 'tag-popular', btn: 'btn-red', accent: 'var(--red)' },
+    'mars-colony': { tag: 'tag-vip', btn: 'btn-blue', accent: '#4A9FD4' }
+  };
+  
+  INVESTMENT_PACKAGES.forEach((pkg, idx) => {
+    const config = colors[pkg.id] || colors['starlink'];
+    const isPopular = pkg.id === 'cybercab';
+    const delayClass = ['delay-1', 'delay-2', 'delay-3'][idx];
+    
+    const card = document.createElement('div');
+    card.className = `card-outer fade-up ${delayClass} ${isPopular ? 'popular-wrap' : ''}`;
+    if (isPopular) card.style.marginTop = '24px';
+    
+    const returnPercent = (pkg.multiplier - 1) * 100;
+    
+    card.innerHTML = `
+      ${isPopular ? '<div class="popular-badge">🔥 MOST POPULAR</div>' : ''}
+      <div class="card-inner" ${isPopular ? 'style="border:1px solid rgba(227,25,55,0.3)"' : ''}>
+        <div id="card-front-${pkg.id}" class="card-front" ${isPopular ? 'style="border-color:rgba(227,25,55,0.3)"' : ''}>
+          <div class="plan-tag ${config.tag}">${pkg.riskLevel || 'STANDARD'}</div>
+          <div class="plan-icon">${pkg.icon || '📦'}</div>
+          <div class="plan-name">${pkg.name}</div>
+          <div class="plan-return" style="color:${config.accent}">${pkg.multiplier * 100}%</div>
+          <div class="plan-return-label">TOTAL RETURN ON MATURITY</div>
+          <div class="plan-divider"></div>
+          <div class="plan-meta">
+            <div class="plan-meta-item">
+              <div class="val">$${pkg.minInvestment}</div>
+              <div class="lbl">MINIMUM</div>
+            </div>
+            <div class="plan-meta-item">
+              <div class="val">${pkg.duration}</div>
+              <div class="lbl">DAYS TERM</div>
+            </div>
+            <div class="plan-meta-item">
+              <div class="val">${returnPercent}%</div>
+              <div class="lbl">NET PROFIT</div>
+            </div>
+          </div>
+          <ul class="plan-features">
+            <li><i class="fas fa-check" style="color:${config.accent}"></i>${pkg.features?.[0] || 'Professional investment plan'}</li>
+            <li><i class="fas fa-check" style="color:${config.accent}"></i>${pkg.features?.[1] || 'Daily profit accrual'}</li>
+            <li><i class="fas fa-check" style="color:${config.accent}"></i>${pkg.features?.[2] || 'Instant withdrawal on maturity'}</li>
+            <li><i class="fas fa-check" style="color:${config.accent}"></i>${pkg.features?.[3] || '24/7 live support'}</li>
+          </ul>
+          <button class="invest-btn ${config.btn}" onclick="openInvestmentPanel('${pkg.id}', event)">INVEST NOW</button>
+        </div>
+        <div id="panel-${pkg.id}" class="card-back" style="display:none;">
+          <button style="position:absolute;top:16px;right:16px;background:none;border:none;color:#666;font-size:1.2rem;cursor:pointer" onclick="closeInvestmentPanel('${pkg.id}', event)"><i class="fas fa-arrow-left"></i></button>
+          
+          <div class="back-title">� ENTER INVESTMENT AMOUNT</div>
+          
+          <div id="pkgInfo-${pkg.id}" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);padding:12px;margin:1rem 0;border-radius:4px;font-size:0.8rem;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="color:#666">PACKAGE</span><span style="font-weight:700">${pkg.name}</span></div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="color:#666">MINIMUM</span><span style="font-weight:700">$${pkg.minInvestment}</span></div>
+            <div style="display:flex;justify-content:space-between"><span style="color:#666">RETURN</span><span style="font-weight:700;color:${config.accent}">${pkg.multiplier * 100}%</span></div>
+          </div>
+          
+          <div style="margin:1rem 0">
+            <label style="font-size:0.75rem;letter-spacing:2px;color:#666;display:block;margin-bottom:0.5rem;font-weight:600">AMOUNT (USD)</label>
+            <input type="number" id="amt-${pkg.id}" placeholder="Min $${pkg.minInvestment}" min="${pkg.minInvestment}" step="10" oninput="updateInvestPanel('${pkg.id}', ${pkg.multiplier})" style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);color:#fff;padding:10px;font-size:0.9rem;outline:none;box-sizing:border-box">
+          </div>
+          
+          <div style="background:rgba(227,25,55,0.1);border:1px solid rgba(227,25,55,0.2);padding:12px;margin:1rem 0;border-radius:4px;font-size:0.8rem">
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="color:#888">You receive:</span><span style="font-weight:700;color:#22c55e" id="ret-${pkg.id}">$0</span></div>
+            <div style="display:flex;justify-content:space-between"><span style="color:#888">Maturity:</span><span style="font-weight:700" id="mat-${pkg.id}">—</span></div>
+          </div>
+          
+          <div style="margin:1rem 0">
+            <label style="font-size:0.75rem;letter-spacing:2px;color:#666;display:block;margin-bottom:0.5rem;font-weight:600">PAYMENT METHOD</label>
+            <select id="pay-${pkg.id}" onchange="updateWalletAddress('${pkg.id}')" style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);color:#fff;padding:10px;font-size:0.9rem;outline:none;box-sizing:border-box">
+              <option value="usdt_eth">USDT (Ethereum) - Recommended</option>
+              <option value="bitcoin">Bitcoin (BTC)</option>
+              <option value="ethereum">Ethereum (ETH)</option>
+            </select>
+          </div>
+          
+          <div style="background:rgba(0,82,136,0.1);border:1px solid rgba(0,82,136,0.2);padding:12px;margin:1rem 0;border-radius:4px">
+            <div style="font-size:0.7rem;letter-spacing:1px;color:#666;margin-bottom:0.5rem;font-weight:600">WALLET ADDRESS</div>
+            <div id="wallet-${pkg.id}" style="background:rgba(0,0,0,0.3);padding:8px;border-radius:2px;word-break:break-all;font-size:0.75rem;font-family:monospace;color:#4A9FD4;cursor:pointer" onclick="copyToClipboard(this.textContent)">
+              0x...
+            </div>
+            <div style="font-size:0.65rem;color:#666;margin-top:4px">💡 Click to copy</div>
+          </div>
+          
+          <div style="margin:1rem 0">
+            <label style="font-size:0.75rem;letter-spacing:2px;color:#666;display:block;margin-bottom:0.5rem;font-weight:600">TRANSACTION ID</label>
+            <input type="text" id="txid-${pkg.id}" placeholder="Enter TxID after sending..." style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);color:#fff;padding:10px;font-size:0.9rem;outline:none;box-sizing:border-box">
+          </div>
+          
+          <div style="margin:1rem 0">
+            <label style="font-size:0.75rem;letter-spacing:2px;color:#666;display:block;margin-bottom:0.5rem;font-weight:600">PAYMENT PROOF (Optional)</label>
+            <input type="file" id="proof-${pkg.id}" accept="image/*,.pdf" style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);color:#fff;padding:10px;font-size:0.9rem;outline:none;box-sizing:border-box;cursor:pointer">
+            <div style="font-size:0.65rem;color:#666;margin-top:4px">📁 Upload screenshot or proof of payment (JPG, PNG, PDF)</div>
+          </div>
+          
+          <button class="invest-btn ${config.btn}" style="width:100%;margin-top:1rem" onclick="completeInvestment('${pkg.id}')">
+            CONFIRM & SUBMIT
+          </button>
+          <p style="text-align:center;color:#555;font-size:0.65rem;margin-top:0.75rem;line-height:1.4">After sending funds and entering TxID, admin will verify within 24 hours.</p>
+        </div>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function selectPackage(packageId) {
+  if (typeof AuthManager !== 'undefined' && !AuthManager.isLoggedIn()) {
+    window.location.href = 'login.html';
+    return;
+  }
+  openInvestmentPanel(packageId, event);
+}
+
+function openInvestmentPanel(packageId, event) {
+  if (event) event.preventDefault();
+  
+  if (typeof AuthManager !== 'undefined' && !AuthManager.isLoggedIn()) {
+    window.location.href = 'login.html';
+    return;
+  }
+  
+  const front = document.querySelector(`[id="card-front-${packageId}"]`);
+  const back = document.getElementById('panel-' + packageId);
+  const cardOuter = front?.closest('.card-outer');
+  
+  if (front && back && cardOuter) {
+    cardOuter.classList.add('expanded');
+    front.style.display = 'none';
+    back.style.display = 'flex';
+    sessionStorage.setItem('selectedPackage', packageId);
+    
+    // Initialize wallet address
+    setTimeout(() => {
+      const walletAddr = CRYPTO_WALLETS?.usdt || '0x9876543210fedcba9876543210fedcba98765432';
+      const walletEl = document.getElementById('wallet-' + packageId);
+      if (walletEl) walletEl.textContent = walletAddr;
+    }, 50);
+  }
+}
+
+function closeInvestmentPanel(packageId, event) {
+  if (event) event.preventDefault();
+  
+  const front = document.querySelector(`[id="card-front-${packageId}"]`);
+  const back = document.getElementById('panel-' + packageId);
+  const cardOuter = front?.closest('.card-outer');
+  
+  if (front && back && cardOuter) {
+    cardOuter.classList.remove('expanded');
+    back.style.display = 'none';
+    front.style.display = 'block';
+    document.getElementById('amt-' + packageId).value = '';
+    document.getElementById('txid-' + packageId).value = '';
+  }
+}
+
+function updateInvestPanel(packageId, multiplier) {
+  const amountEl = document.getElementById('amt-' + packageId);
+  const retEl = document.getElementById('ret-' + packageId);
+  const matEl = document.getElementById('mat-' + packageId);
+  
+  const amount = parseFloat(amountEl.value) || 0;
+  if (amount <= 0) {
+    retEl.textContent = '$0';
+    matEl.textContent = '—';
+    return;
+  }
+  
+  const pkg = INVESTMENT_PACKAGES.find(p => p.id === packageId);
+  const returns = amount * multiplier;
+  const date = new Date();
+  date.setDate(date.getDate() + pkg.duration);
+  
+  retEl.textContent = '$' + returns.toLocaleString('en-US', {minimumFractionDigits: 2});
+  matEl.textContent = date.toLocaleDateString('en-US', {year: 'numeric', month: 'short', day: 'numeric'});
+}
+
+function updateWalletAddress(packageId) {
+  const payEl = document.getElementById('pay-' + packageId);
+  const walletEl = document.getElementById('wallet-' + packageId);
+  
+  let walletAddr = CRYPTO_WALLETS?.usdt || '0x9876543210fedcba9876543210fedcba98765432';
+  const walletType = payEl.value;
+  
+  if (walletType === 'bitcoin') {
+    walletAddr = CRYPTO_WALLETS?.bitcoin || '1A1z7agoat7SBLcNQrzXvVNRTxvkJzENEX';
+  } else if (walletType === 'ethereum') {
+    walletAddr = CRYPTO_WALLETS?.ethereum || '0x9876543210fedcba9876543210fedcba98765432';
+  } else if (walletType === 'usdt_eth') {
+    walletAddr = CRYPTO_WALLETS?.usdt || '0x9876543210fedcba9876543210fedcba98765432';
+  }
+  
+  if (walletEl) walletEl.textContent = walletAddr;
+}
+
+function copyToClipboard(text) {
+  navigator.clipboard.writeText(text).then(() => {
+    alert('✅ Address copied to clipboard!');
+  });
+}
+
+function completeInvestment(packageId) {
+  const amountEl = document.getElementById('amt-' + packageId);
+  const txidEl = document.getElementById('txid-' + packageId);
+  const payEl = document.getElementById('pay-' + packageId);
+  const proofEl = document.getElementById('proof-' + packageId);
+  const amount = amountEl.value;
+  const txid = txidEl.value;
+  const walletType = payEl.value;
+  
+  if (!amount || !txid) {
+    alert('Please enter both amount and transaction ID');
+    return;
+  }
+  
+  const pkg = INVESTMENT_PACKAGES.find(p => p.id === packageId);
+  if (!pkg) return;
+  
+  // Get JWT token from localStorage
+  const token = localStorage.getItem('authToken');
+  if (!token) {
+    alert('Please login first');
+    window.location.href = 'login.html';
+    return;
+  }
+  
+  // Step 1: Create investment in MongoDB via backend
+  fetch('/api/investments', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      packageId: packageId,
+      amount: parseFloat(amount)
+    })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success && data.investment.id) {
+      // Investment created, now submit payment receipt WITH file upload
+      submitPaymentReceipt(data.investment.id, amount, walletType, txid, packageId, proofEl.files[0]);
+    } else {
+      alert('Error creating investment: ' + (data.error || 'Unknown error'));
+    }
+  })
+  .catch(err => {
+    console.error('Investment error:', err);
+    alert('Connection error. Please try again.');
+  });
+}
+
+function submitPaymentReceipt(investmentId, amount, walletType, txid, packageId, proofFile) {
+  const token = localStorage.getItem('authToken');
+  
+  // Step 2: Submit payment receipt to MongoDB via backend
+  if (proofFile) {
+    // Read file and convert to base64
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const base64File = e.target.result;
+      sendReceipt(investmentId, amount, walletType, txid, packageId, token, base64File, proofFile.name);
+    };
+    reader.readAsDataURL(proofFile);
+  } else {
+    // No file, send without proof
+    sendReceipt(investmentId, amount, walletType, txid, packageId, token, null, null);
+  }
+}
+
+function sendReceipt(investmentId, amount, walletType, txid, packageId, token, base64Proof, fileName) {
+  const body = {
+    investmentId: investmentId,
+    amount: parseFloat(amount),
+    walletType: walletType,
+    transactionId: txid
+  };
+  
+  if (base64Proof) {
+    body.proofBase64 = base64Proof;
+    body.proofFileName = fileName;
+  }
+  
+  fetch('/api/payments/receipt', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) {
+      const pkg = INVESTMENT_PACKAGES.find(p => p.id === packageId);
+      alert('✅ Investment of $' + amount + ' submitted for approval!\n\nYour investment is pending admin verification. Once confirmed, it will become active.\n\nPackage: ' + pkg.name + '\nTxID: ' + txid);
+      
+      closeInvestmentPanel(packageId, {preventDefault: () => {}});
+      sessionStorage.removeItem('selectedPackage');
+      
+      // Redirect to dashboard after 2 seconds
+      setTimeout(() => {
+        window.location.href = 'dashboard.html';
+      }, 2000);
+    } else {
+      alert('Error submitting receipt: ' + (data.error || 'Unknown error'));
+    }
+  })
+  .catch(err => {
+    console.error('Receipt error:', err);
+    alert('Connection error. Please try again.');
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  setTimeout(() => {
+    renderPackages();
+  }, 100);
+});
+
+// Initialize wallet display on load
+window.addEventListener('load', () => {
+  const walletAddr = CRYPTO_WALLETS?.usdt || '0x9876543210fedcba9876543210fedcba98765432';
+  // Wallets will be initialized when panels are opened
+});
+</script>
+
+</body>
+</html>

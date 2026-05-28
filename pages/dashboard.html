@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — TeslaInvest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root{--red:#E31937;--blue:#005288;--bg:#080808;--surface:#111111;--glass:rgba(255,255,255,0.04);--border:rgba(255,255,255,0.08);--text:#E8E8E8;--muted:#666;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;overflow-x:hidden;}
+  h1,h2,h3,h4,.logo{font-family:'Rajdhani',sans-serif;}
+  body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(255,255,255,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.02) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0;}
+
+  /* Sidebar */
+  .sidebar{position:fixed;top:0;left:0;width:240px;height:100vh;background:#0D0D0D;border-right:1px solid var(--border);z-index:50;display:flex;flex-direction:column;padding:0;}
+  .sidebar-logo{padding:24px 24px 20px;border-bottom:1px solid var(--border);}
+  .sidebar-logo a{font-family:'Rajdhani',sans-serif;font-size:1.3rem;font-weight:700;letter-spacing:2px;color:#fff;text-decoration:none;}
+  .sidebar-logo a span{color:var(--red);}
+  .sidebar-nav{flex:1;padding:20px 0;overflow-y:auto;}
+  .sidebar-section{font-size:0.65rem;letter-spacing:2px;color:#444;font-family:'Rajdhani',sans-serif;font-weight:600;padding:0 24px;margin-bottom:8px;margin-top:16px;}
+  .sidebar-nav a{display:flex;align-items:center;gap:12px;padding:11px 24px;color:#666;text-decoration:none;font-size:0.85rem;transition:all 0.2s;border-left:2px solid transparent;}
+  .sidebar-nav a:hover,.sidebar-nav a.active{color:#fff;background:rgba(255,255,255,0.04);border-left-color:var(--red);}
+  .sidebar-nav a i{width:16px;text-align:center;font-size:0.9rem;}
+  .sidebar-bottom{border-top:1px solid var(--border);padding:20px 24px;}
+  .user-mini{display:flex;align-items:center;gap:10px;}
+  .user-avatar{width:36px;height:36px;background:linear-gradient(135deg,var(--red),var(--blue));display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:0.9rem;color:#fff;}
+  .user-mini-name{font-size:0.85rem;font-weight:600;}
+  .user-mini-email{font-size:0.7rem;color:#555;}
+  .logout-btn{display:flex;align-items:center;gap:8px;color:#555;font-size:0.8rem;cursor:pointer;margin-top:12px;background:none;border:none;padding:0;transition:color 0.2s;}
+  .logout-btn:hover{color:var(--red);}
+
+  /* Main content */
+  .main{margin-left:240px;min-height:100vh;padding:0;}
+  .topbar{background:rgba(13,13,13,0.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0 32px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40;gap:1rem;}
+  .topbar h1{font-size:1.1rem;font-weight:700;letter-spacing:2px;flex-shrink:0;}
+  .topbar-right{display:flex;align-items:center;gap:1rem;justify-content:flex-end;flex-shrink:0;}
+  .notif-btn{width:36px;height:36px;display:flex;align-items:center;justify-content:center;background:var(--glass);border:1px solid var(--border);color:#666;cursor:pointer;position:relative;font-size:0.85rem;}
+  .notif-dot{position:absolute;top:6px;right:6px;width:6px;height:6px;border-radius:50%;background:var(--red);}
+  .content{padding:28px 32px;}
+
+  /* Stat cards */
+  .stat-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem;}
+  .stat-card{background:var(--surface);border:1px solid var(--border);padding:24px;position:relative;overflow:hidden;transition:border-color 0.3s;}
+  .stat-card:hover{border-color:rgba(255,255,255,0.12);}
+  .stat-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--glow-color,rgba(227,25,55,0.05)),transparent);pointer-events:none;}
+  .stat-card .icon{position:absolute;right:20px;top:20px;font-size:1.5rem;opacity:0.15;}
+  .stat-card .label{font-size:0.65rem;letter-spacing:2px;color:#555;font-family:'Rajdhani',sans-serif;font-weight:600;margin-bottom:0.5rem;}
+  .stat-card .value{font-family:'Rajdhani',sans-serif;font-size:1.8rem;font-weight:700;line-height:1;}
+  .stat-card .change{font-size:0.75rem;color:#22c55e;margin-top:6px;}
+  .stat-card .change.neg{color:#ef4444;}
+
+  /* Quick actions */
+  .quick-actions{display:flex;gap:1rem;margin-bottom:2rem;flex-wrap:wrap;}
+  .action-btn{display:flex;align-items:center;gap:10px;padding:12px 20px;background:var(--glass);border:1px solid var(--border);color:#aaa;font-size:0.8rem;font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:2px;cursor:pointer;transition:all 0.2s;text-decoration:none;}
+  .action-btn:hover{border-color:rgba(255,255,255,0.2);color:#fff;}
+  .action-btn.primary{background:rgba(227,25,55,0.1);border-color:rgba(227,25,55,0.3);color:var(--red);}
+  .action-btn.primary:hover{background:rgba(227,25,55,0.15);}
+  .action-btn i{font-size:0.85rem;}
+
+  /* Section */
+  .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;}
+  .section-title{font-size:1rem;font-weight:700;letter-spacing:2px;}
+  .section-link{font-size:0.75rem;color:var(--red);text-decoration:none;letter-spacing:1px;font-family:'Rajdhani',sans-serif;font-weight:600;}
+
+  /* Tables */
+  .table-wrap{background:var(--surface);border:1px solid var(--border);margin-bottom:2rem;overflow-x:auto;}
+  table{width:100%;border-collapse:collapse;min-width:600px;}
+  thead{background:rgba(255,255,255,0.02);border-bottom:1px solid var(--border);}
+  th{padding:12px 16px;text-align:left;font-size:0.65rem;letter-spacing:2px;color:#555;font-family:'Rajdhani',sans-serif;font-weight:600;white-space:nowrap;}
+  td{padding:14px 16px;font-size:0.85rem;border-bottom:1px solid rgba(255,255,255,0.03);}
+  tr:last-child td{border-bottom:none;}
+  tr:hover td{background:rgba(255,255,255,0.02);}
+
+  .badge{display:inline-block;padding:2px 10px;font-size:0.65rem;letter-spacing:1px;font-family:'Rajdhani',sans-serif;font-weight:700;}
+  .badge-active{background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);color:#22c55e;}
+  .badge-completed{background:rgba(0,82,136,0.15);border:1px solid rgba(0,82,136,0.3);color:#4A9FD4;}
+  .badge-pending{background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.3);color:#fbbf24;}
+  .badge-rejected{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#ef4444;}
+
+  /* Progress tracker */
+  .tracker{background:var(--surface);border:1px solid var(--border);padding:28px;margin-bottom:2rem;}
+  .tracker h3{font-size:1rem;font-weight:700;letter-spacing:2px;margin-bottom:1.5rem;}
+  .progress-steps{display:flex;align-items:center;}
+  .progress-step{flex:1;text-align:center;position:relative;}
+  .step-circle{width:40px;height:40px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;margin:0 auto 8px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:0.8rem;transition:all 0.3s;}
+  .step-circle.done{border-color:#22c55e;background:rgba(34,197,94,0.1);color:#22c55e;}
+  .step-circle.current{border-color:var(--red);background:rgba(227,25,55,0.1);color:var(--red);}
+  .step-circle.pending-s{border-color:#fbbf24;background:rgba(251,191,36,0.1);color:#fbbf24;}
+  .step-label{font-size:0.65rem;color:#555;font-family:'Rajdhani',sans-serif;letter-spacing:1px;line-height:1.4;}
+  .step-connector{flex:1;height:1px;background:var(--border);}
+  .step-connector.filled{background:var(--red);}
+
+  /* Modal */
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;}
+  .modal-overlay.hidden{display:none;}
+  .modal{background:#141414;border:1px solid var(--border);width:100%;max-width:500px;padding:40px;position:relative;max-height:90vh;overflow-y:auto;}
+  .modal-close{position:absolute;top:16px;right:16px;background:none;border:none;color:#666;font-size:1.2rem;cursor:pointer;}
+  .modal-close:hover{color:#fff;}
+  .modal h2{font-size:1.5rem;font-weight:700;letter-spacing:2px;margin-bottom:0.5rem;}
+  .modal p.sub{color:#666;font-size:0.85rem;margin-bottom:2rem;}
+  .form-group{margin-bottom:1.25rem;}
+  .form-group label{display:block;font-size:0.7rem;letter-spacing:2px;color:#888;font-family:'Rajdhani',sans-serif;font-weight:600;margin-bottom:0.5rem;}
+  .form-group input,.form-group select{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--border);color:#fff;padding:12px 14px;font-family:'DM Sans',sans-serif;font-size:0.9rem;outline:none;transition:border-color 0.2s;}
+  .form-group input:focus,.form-group select:focus{border-color:rgba(227,25,55,0.4);}
+  .file-drop{border:2px dashed var(--border);padding:30px;text-align:center;cursor:pointer;transition:border-color 0.2s;}
+  .file-drop:hover,.file-drop.drag-over{border-color:rgba(227,25,55,0.4);background:rgba(227,25,55,0.02);}
+  .file-drop i{font-size:2rem;color:#444;margin-bottom:0.75rem;display:block;}
+  .file-drop p{color:#666;font-size:0.85rem;}
+  .file-drop small{color:#444;font-size:0.75rem;}
+  .submit-btn{width:100%;padding:14px;background:var(--red);color:#fff;border:none;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:0.95rem;letter-spacing:3px;cursor:pointer;clip-path:polygon(10px 0%,100% 0%,calc(100% - 10px) 100%,0% 100%);transition:all 0.3s;}
+  .submit-btn:hover{box-shadow:0 0 30px rgba(227,25,55,0.4);}
+  .submit-btn:disabled{opacity:0.6;cursor:not-allowed;}
+  .success-banner{background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);color:#22c55e;padding:20px;text-align:center;}
+  .success-banner i{font-size:2rem;display:block;margin-bottom:0.75rem;}
+
+  .spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.6s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  .empty-state{padding:40px;text-align:center;color:#444;}
+  .empty-state i{font-size:2rem;display:block;margin-bottom:1rem;}
+
+  /* Mobile sidebar toggle */
+  .mobile-sidebar-toggle{display:none;position:fixed;top:16px;left:16px;z-index:70;width:40px;height:40px;background:var(--surface);border:1px solid var(--border);align-items:center;justify-content:center;cursor:pointer;font-size:1.1rem;}
+
+  /* Sidebar backdrop */
+  .sidebar-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:54;}
+  .sidebar-backdrop.open{display:block;}
+
+  @media(max-width:1024px){
+    .stat-cards{grid-template-columns:repeat(2,1fr);}
+    .topbar{padding:0 16px;}
+    .content{padding:20px 16px;}
+  }
+  
+  @media(max-width:768px){
+    .sidebar{position:fixed;top:0;left:0;width:100%;height:100vh;transform:translateX(-100%);transition:transform 0.3s;z-index:60;overflow-y:auto;}
+    .sidebar.open{transform:translateX(0);}
+    .sidebar-logo{padding:24px 24px 20px 60px;}
+    .sidebar-logo a{font-size:1.1rem;}
+    .main{margin-left:0;position:relative;z-index:1;}
+    .mobile-sidebar-toggle{display:flex;}
+    .stat-cards{grid-template-columns:repeat(2,1fr);gap:0.75rem;}
+    .stat-card{padding:16px;}
+    .stat-card .value{font-size:1.4rem;}
+    .stat-card .label{font-size:0.6rem;}
+    .topbar{padding:0 12px;height:56px;gap:0.5rem;flex-wrap:wrap;}
+    .topbar h1{font-size:0.9rem;letter-spacing:1px;flex:1;min-width:100px;padding-left:50px;}
+    .topbar-right{gap:0.5rem;justify-content:flex-end;}
+    .topbar-right button{padding:6px 10px!important;font-size:0.7rem!important;margin-right:0!important;}
+    .topbar-right .notif-btn{width:32px;height:32px;font-size:0.8rem;}
+    .topbar-right > div:last-child{display:none;}
+    .content{padding:16px 12px;}
+    .quick-actions{gap:0.5rem;}
+    .action-btn{padding:10px 16px;font-size:0.7rem;}
+    .modal{padding:24px;max-width:calc(100% - 20px);}
+    .section-title{font-size:0.95rem;}
+    table{font-size:0.8rem;min-width:100%;}
+    th,td{padding:8px 12px;}
+  }
+  
+  @media(max-width:480px){
+    .stat-cards{grid-template-columns:1fr;}
+    .stat-card{padding:14px;}
+    .stat-card .value{font-size:1.2rem;}
+    .stat-card .label{font-size:0.55rem;letter-spacing:1px;}
+    .stat-card .icon{font-size:1.2rem;right:12px;top:12px;}
+    .sidebar-logo{padding:20px 16px 18px 55px;}
+    .sidebar-logo a{font-size:1rem;letter-spacing:1px;}
+    .topbar{padding:0 10px;height:50px;gap:0.5rem;}
+    .topbar h1{font-size:0.8rem;letter-spacing:0.5px;flex:1;min-width:80px;padding-left:45px;}
+    .topbar-right{gap:0.25rem;justify-content:flex-end;}
+    .topbar-right button{display:none;}
+    .topbar-right .notif-btn{width:30px;height:30px;font-size:0.75rem;}
+    .topbar-right > div:last-child{display:none;}
+    .mobile-sidebar-toggle{width:36px;height:36px;font-size:0.9rem;top:12px;left:12px;}
+    .content{padding:12px 10px;}
+    .quick-actions{flex-direction:column;gap:0.5rem;}
+    .action-btn{width:100%;padding:10px 16px;font-size:0.75rem;justify-content:center;}
+    .section-header{flex-direction:column;align-items:flex-start;gap:0.5rem;}
+    .modal{padding:20px;border-radius:4px;}
+    .modal h2{font-size:1.2rem;}
+    .form-group input,.form-group select{font-size:0.9rem;padding:10px 12px;}
+    .submit-btn{padding:12px;font-size:0.85rem;letter-spacing:2px;}
+    .table-wrap{overflow-x:auto;}
+    table{font-size:0.75rem;min-width:600px;}
+    th,td{padding:6px 8px;}
+    .tracker{padding:20px;}
+    .progress-steps{flex-direction:column;}
+    .step-connector{width:1px;height:20px;flex:none;}
+    .modal-overlay{padding:10px;}
+  }
+
+</style>
+</head>
+<body>
+
+<!-- Mobile Toggle -->
+<div class="mobile-sidebar-toggle" onclick="toggleSidebar()">
+  <i class="fas fa-bars"></i>
+</div>
+
+<!-- Sidebar Backdrop -->
+<div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeSidebar()"></div>
+
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <a href="index.html">TESLA<span>INVEST</span></a>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="sidebar-section">MAIN</div>
+    <a href="dashboard.html" class="active"><i class="fas fa-th-large"></i> Overview</a>
+    <a href="invest.html"><i class="fas fa-rocket"></i> Invest</a>
+
+    <div class="sidebar-section">ACCOUNT</div>
+    <a href="#" onclick="openModal('deposit')"><i class="fas fa-arrow-down"></i> Deposit</a>
+    <a href="#" onclick="openModal('withdraw')"><i class="fas fa-arrow-up"></i> Withdraw</a>
+    <a href="#" onclick="openModal('receipt')"><i class="fas fa-upload"></i> Upload Receipt</a>
+
+    <div class="sidebar-section">OTHER</div>
+    <a href="admin.html"><i class="fas fa-shield-halved"></i> Admin Panel</a>
+    <a href="index.html"><i class="fas fa-globe"></i> Homepage</a>
+  </nav>
+  <div class="sidebar-bottom">
+    <div class="user-mini">
+      <div class="user-avatar" id="userInitial">D</div>
+      <div>
+        <div class="user-mini-name" id="userName">User</div>
+        <div class="user-mini-email" id="userEmail">user@example.com</div>
+      </div>
+    </div>
+    <button class="logout-btn" onclick="logout()"><i class="fas fa-right-from-bracket"></i> Sign out</button>
+  </div>
+</div>
+
+<!-- Investment Modal for Dashboard -->
+<div class="modal-overlay hidden" id="investmentModalDash">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('investmentDash')"><i class="fas fa-x"></i></button>
+    <h2>Investment Packages</h2>
+    <p class="sub">Choose a package to invest in</p>
+    <div id="investmentPackagesContainer" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;"></div>
+  </div>
+</div>
+
+<!-- Crypto Payment Modal -->
+<div class="modal-overlay hidden" id="cryptoPaymentModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeCryptoModal()"><i class="fas fa-x"></i></button>
+    <h2>Crypto Payment</h2>
+    <p class="sub" id="paymentSubtitle">Complete your investment with cryptocurrency</p>
+    
+    <div style="background:rgba(227,25,55,0.1);border:1px solid rgba(227,25,55,0.3);padding:15px;border-radius:4px;margin-bottom:20px;">
+      <div style="font-size:0.8rem;color:#888;margin-bottom:6px;">INVESTMENT SUMMARY</div>
+      <div style="display:flex;justify-content:space-between;font-weight:700;font-size:1.1rem;margin-bottom:8px;">
+        <span id="paymentPackageName">Package</span>
+        <span id="paymentAmount">$0.00</span>
+      </div>
+      <div style="font-size:0.8rem;color:#aaa;">Return: <span id="paymentReturn">$0.00</span></div>
+    </div>
+
+    <div class="form-group">
+      <label>SELECT PAYMENT METHOD</label>
+      <select id="cryptoSelect" style="width:100%;padding:12px;border:1px solid var(--border);background:rgba(255,255,255,0.04);color:#fff;cursor:pointer;" onchange="updateCryptoAddress()">
+        <option value="">Choose cryptocurrency...</option>
+        <option value="bitcoin">Bitcoin (BTC)</option>
+        <option value="ethereum">Ethereum (ETH)</option>
+        <option value="usdt_eth">USDT (Ethereum)</option>
+        <option value="usdt_tron">USDT (TRON)</option>
+      </select>
+    </div>
+
+    <div id="cryptoAddressContainer" style="display:none;">
+      <div class="form-group">
+        <label>SEND PAYMENT TO THIS ADDRESS</label>
+        <div style="display:flex;gap:8px;">
+          <input id="cryptoAddress" type="text" readonly style="flex:1;padding:12px;border:1px solid var(--border);background:rgba(255,255,255,0.02);color:#fff;">
+          <button class="action-btn" onclick="copyCryptoAddress()" style="padding:12px 16px;">
+            <i class="fas fa-copy"></i> COPY
+          </button>
+        </div>
+      </div>
+
+      <div style="background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);padding:12px;border-radius:4px;margin-bottom:16px;font-size:0.85rem;color:#aaa;">
+        <strong style="color:#22c55e;">⚠️ Important:</strong> Send exactly the amount shown above. Your investment will be credited after payment confirmation (usually within 5-10 minutes).
+      </div>
+
+      <div class="form-group">
+        <label>TRANSACTION ID (OPTIONAL)</label>
+        <input id="txidInput" type="text" placeholder="Enter transaction hash to track" style="padding:12px;border:1px solid var(--border);background:rgba(255,255,255,0.04);color:#fff;">
+      </div>
+
+      <button class="submit-btn" onclick="confirmCryptoPayment()" style="width:100%;padding:14px;">CONFIRM PAYMENT SENT</button>
+      <button class="action-btn" onclick="closeCryptoModal()" style="width:100%;margin-top:10px;padding:12px;">CANCEL</button>
+    </div>
+  </div>
+</div>
+
+<!-- Main -->
+<div class="main">
+  <div class="topbar">
+    <h1>DASHBOARD</h1>
+    <div class="topbar-right">
+      <button onclick="renderAll()" style="background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);color:#22c55e;padding:8px 12px;border-radius:4px;cursor:pointer;font-size:0.85rem;margin-right:12px;" title="Refresh balance">
+        <i class="fas fa-sync"></i> REFRESH
+      </button>
+      <div class="notif-btn"><i class="fas fa-bell"></i><div class="notif-dot"></div></div>
+      <div style="font-size:0.8rem;color:#555">Last login: Just now</div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- Stat Cards -->
+    <div class="stat-cards">
+      <div class="stat-card" style="--glow-color:rgba(34,197,94,0.06)">
+        <i class="fas fa-wallet icon"></i>
+        <div class="label">ACTIVE BALANCE</div>
+        <div class="value" style="color:#22c55e" id="cardBalance">$0.00</div>
+        <div class="change">Available to withdraw</div>
+      </div>
+      <div class="stat-card" style="--glow-color:rgba(227,25,55,0.06)">
+        <i class="fas fa-chart-line icon"></i>
+        <div class="label">TOTAL INVESTED</div>
+        <div class="value" id="cardInvested">$0.00</div>
+        <div class="change">Across all plans</div>
+      </div>
+      <div class="stat-card" style="--glow-color:rgba(251,191,36,0.06)">
+        <i class="fas fa-clock icon"></i>
+        <div class="label">PENDING APPROVAL</div>
+        <div class="value" style="color:#fbbf24" id="cardPending">$0.00</div>
+        <div class="change">Awaiting admin review</div>
+      </div>
+      <div class="stat-card" style="--glow-color:rgba(0,82,136,0.1)">
+        <i class="fas fa-coins icon"></i>
+        <div class="label">TOTAL PROFIT</div>
+        <div class="value" style="color:#4A9FD4" id="cardProfit">$0.00</div>
+        <div class="change">+All time earnings</div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+      <button class="action-btn primary" onclick="openModal('deposit')"><i class="fas fa-arrow-down"></i> DEPOSIT FUNDS</button>
+      <button class="action-btn" onclick="openModal('withdraw')"><i class="fas fa-arrow-up"></i> WITHDRAW</button>
+      <button class="action-btn" onclick="openModal('receipt')"><i class="fas fa-upload"></i> UPLOAD RECEIPT</button>
+      <a href="invest.html" style="text-decoration:none"><button class="action-btn"><i class="fas fa-rocket"></i> NEW INVESTMENT</button></a>
+    </div>
+
+    <!-- Status Tracker -->
+    <div class="tracker">
+      <h3>DEPOSIT STATUS TRACKER</h3>
+      <div class="progress-steps" id="statusTracker">
+        <!-- Rendered by JS -->
+      </div>
+      <p style="font-size:0.75rem;color:#555;margin-top:1rem;" id="trackerMsg">Upload your payment receipt to begin.</p>
+    </div>
+
+    <!-- Active Investments -->
+    <div class="section-header">
+      <div class="section-title">ACTIVE INVESTMENTS</div>
+      <a href="invest.html" class="section-link">+ ADD INVESTMENT</a>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>PLAN</th>
+            <th>INITIAL AMOUNT</th>
+            <th>CURRENT BALANCE</th>
+            <th>DAILY PROFIT</th>
+            <th>DAYS REMAINING</th>
+            <th>MATURITY DATE</th>
+            <th>STATUS</th>
+          </tr>
+        </thead>
+        <tbody id="investTable">
+          <tr><td colspan="7" class="empty-state"><i class="fas fa-satellite-dish"></i>No investments yet. <a href="invest.html" style="color:var(--red)">Start investing →</a></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div id="investmentDetailsContainer" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1rem;margin-top:2rem;"></div>
+
+    <!-- Transaction History -->
+    <div class="section-header">
+      <div class="section-title">TRANSACTION HISTORY</div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>DATE</th>
+            <th>TYPE</th>
+            <th>AMOUNT</th>
+            <th>TX ID</th>
+            <th>STATUS</th>
+          </tr>
+        </thead>
+        <tbody id="txTable">
+          <tr><td colspan="5" class="empty-state"><i class="fas fa-clock"></i>No transactions yet.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<!-- Deposit Modal -->
+<div class="modal-overlay hidden" id="depositModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('deposit')"><i class="fas fa-times"></i></button>
+    <h2>DEPOSIT FUNDS</h2>
+    <p class="sub">Send crypto to the address below, then upload your receipt</p>
+    <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);padding:20px;margin-bottom:1.5rem;">
+      <div style="font-size:0.7rem;letter-spacing:2px;color:#555;font-family:'Rajdhani',sans-serif;margin-bottom:0.75rem;">USDT (TRC-20) DEPOSIT ADDRESS</div>
+      <div style="font-family:monospace;font-size:0.85rem;color:#22c55e;word-break:break-all;padding:12px;background:rgba(34,197,94,0.05);border:1px solid rgba(34,197,94,0.1)">THKPySqKVP38eyupZ9WQGRKHcjMbaLwpMQ</div>
+      <button onclick="copyAddr()" style="font-size:0.75rem;color:#666;background:none;border:none;cursor:pointer;margin-top:8px;font-family:'Rajdhani',sans-serif;letter-spacing:1px">📋 COPY ADDRESS</button>
+    </div>
+    <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);padding:20px;margin-bottom:1.5rem;">
+      <div style="font-size:0.7rem;letter-spacing:2px;color:#555;font-family:'Rajdhani',sans-serif;margin-bottom:0.75rem;">USDT (ERC-20) DEPOSIT ADDRESS</div>
+      <div style="font-family:monospace;font-size:0.85rem;color:#22c55e;word-break:break-all;padding:12px;background:rgba(34,197,94,0.05);border:1px solid rgba(34,197,94,0.1)">0x9647750C8690054e5e5b445B3c0D91CdD2B84C06</div>
+      <button onclick="copyAddr()" style="font-size:0.75rem;color:#666;background:none;border:none;cursor:pointer;margin-top:8px;font-family:'Rajdhani',sans-serif;letter-spacing:1px">📋 COPY ADDRESS</button>
+    </div>
+    <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);padding:20px;margin-bottom:1.5rem;">
+      <div style="font-size:0.7rem;letter-spacing:2px;color:#555;font-family:'Rajdhani',sans-serif;margin-bottom:0.75rem;">ETHEREUM (ERC-20) DEPOSIT ADDRESS</div>
+      <div style="font-family:monospace;font-size:0.85rem;color:#22c55e;word-break:break-all;padding:12px;background:rgba(34,197,94,0.05);border:1px solid rgba(34,197,94,0.1)">0x9647750C8690054e5e5b445B3c0D91CdD2B84C06</div>
+      <button onclick="copyAddr()" style="font-size:0.75rem;color:#666;background:none;border:none;cursor:pointer;margin-top:8px;font-family:'Rajdhani',sans-serif;letter-spacing:1px">📋 COPY ADDRESS</button>
+    </div>
+    <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);padding:20px;margin-bottom:1.5rem;">
+      <div style="font-size:0.7rem;letter-spacing:2px;color:#555;font-family:'Rajdhani',sans-serif;margin-bottom:0.75rem;">BITCOIN (BTC) DEPOSIT ADDRESS</div>
+      <div style="font-family:monospace;font-size:0.85rem;color:#22c55e;word-break:break-all;padding:12px;background:rgba(34,197,94,0.05);border:1px solid rgba(34,197,94,0.1)">bc1q67lt894r3pcrkad9pylhq7skqxtgkx5lnusm5n</div>
+      <button onclick="copyAddr()" style="font-size:0.75rem;color:#666;background:none;border:none;cursor:pointer;margin-top:8px;font-family:'Rajdhani',sans-serif;letter-spacing:1px">📋 COPY ADDRESS</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;font-size:0.8rem;color:#666;margin-bottom:1.5rem;">
+      <div><div style="color:#555;font-size:0.65rem;letter-spacing:2px;font-family:'Rajdhani',sans-serif">NETWORK</div><div style="color:#fff;margin-top:4px">TRC-20 (Tron)</div></div>
+      <div><div style="color:#555;font-size:0.65rem;letter-spacing:2px;font-family:'Rajdhani',sans-serif">MIN DEPOSIT</div><div style="color:#fff;margin-top:4px">$100 USDT</div></div>
+      <div><div style="color:#555;font-size:0.65rem;letter-spacing:2px;font-family:'Rajdhani',sans-serif">CONFIRMATION</div><div style="color:#fff;margin-top:4px">~5 minutes</div></div>
+      <div><div style="color:#555;font-size:0.65rem;letter-spacing:2px;font-family:'Rajdhani',sans-serif">CREDIT TIME</div><div style="color:#fff;margin-top:4px">After admin review</div></div>
+    </div>
+    <button class="submit-btn" onclick="closeModal('deposit');openModal('receipt')">UPLOADED? SUBMIT RECEIPT →</button>
+  </div>
+</div>
+
+<!-- Receipt Upload Modal -->
+<div class="modal-overlay hidden" id="receiptModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('receipt')"><i class="fas fa-times"></i></button>
+    <h2>UPLOAD RECEIPT</h2>
+    <p class="sub">Submit your payment proof for admin verification</p>
+    <div id="receiptForm">
+      <div class="form-group">
+        <label>TRANSACTION HASH (TxID)</label>
+        <input type="text" id="txid" placeholder="0x...or TRX transaction ID">
+      </div>
+      <div class="form-group">
+        <label>AMOUNT SENT (USD)</label>
+        <input type="number" id="amountSent" placeholder="e.g. 500">
+      </div>
+      <div class="form-group">
+        <label>PAYMENT METHOD</label>
+        <select id="walletType" style="background:rgba(255,255,255,0.04);border:1px solid var(--border);color:#fff;padding:12px 14px;width:100%;outline:none">
+          <option value="bitcoin">Bitcoin (BTC)</option>
+          <option value="ethereum">Ethereum (ETH)</option>
+          <option value="usdt_eth">USDT (Ethereum)</option>
+          <option value="usdt_tron">USDT (Tron)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>DATE SENT</label>
+        <input type="date" id="dateSent">
+      </div>
+      <div class="form-group">
+        <label>UPLOAD SCREENSHOT</label>
+        <div class="file-drop" id="fileDrop" onclick="document.getElementById('fileInput').click()" ondragover="event.preventDefault();this.classList.add('drag-over')" ondrop="handleDrop(event)">
+          <i class="fas fa-cloud-arrow-up"></i>
+          <p id="fileLabel">Drag & drop or click to upload</p>
+          <small>PNG, JPG — Max 5MB</small>
+        </div>
+        <input type="file" id="fileInput" accept=".png,.jpg,.jpeg" style="display:none" onchange="handleFile(this)">
+      </div>
+      <button class="submit-btn" onclick="submitReceipt()" id="receiptBtn">SUBMIT RECEIPT</button>
+    </div>
+    <div class="success-banner hidden" id="receiptSuccess">
+      <i class="fas fa-circle-check"></i>
+      <strong>Receipt submitted successfully!</strong><br>
+      <span style="font-size:0.85rem">Waiting for admin approval. Funds will be credited to your balance once verified.</span>
+    </div>
+  </div>
+</div>
+
+<!-- Withdraw Modal -->
+<div class="modal-overlay hidden" id="withdrawModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('withdraw')"><i class="fas fa-times"></i></button>
+    <h2>WITHDRAW FUNDS</h2>
+    <p class="sub">Request a withdrawal to your crypto wallet</p>
+    <div class="form-group">
+      <label>WITHDRAWAL AMOUNT</label>
+      <input type="number" id="wdAmount" placeholder="Min $50">
+    </div>
+    <div class="form-group">
+      <label>WALLET ADDRESS (USDT TRC-20)</label>
+      <input type="text" id="wdWallet" placeholder="Your USDT wallet address">
+    </div>
+    <div class="form-group">
+      <label>NETWORK</label>
+      <select id="wdNetwork" style="background:rgba(255,255,255,0.04);border:1px solid var(--border);color:#fff;padding:12px 14px;width:100%;outline:none">
+        <option value="trc20">USDT - TRC20 (Tron)</option>
+        <option value="erc20">USDT - ERC20 (Ethereum)</option>
+        <option value="btc">Bitcoin (BTC)</option>
+      </select>
+    </div>
+    <button class="submit-btn" onclick="submitWithdraw()" id="wdBtn">REQUEST WITHDRAWAL</button>
+    <p style="text-align:center;color:#555;font-size:0.75rem;margin-top:1rem">Processing time: 1–24 hours after approval</p>
+  </div>
+</div>
+
+<script>
+const fmt = n => '$'+Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtDate = d => new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+const spinner = `<span class="spinner"></span>`;
+
+// Auth guard - Check IMMEDIATELY before anything else
+(function checkAuth() {
+  const hasToken = !!localStorage.getItem('authToken');
+  const fromDashboard = window.location.search.includes('from=dashboard');
+  
+  if (!hasToken) {
+    // If no token and not already in a redirect loop, send to login
+    if (!fromDashboard) {
+      // Use simple redirect without loop param - let login decide what to do
+      window.location.href = '/pages/login.html';
+      return;
+    }
+    // If we're here, we're already redirecting from dashboard but still no token
+    // This shouldn't happen, but stop infinite loops
+    return;
+  }
+})();
+
+// Render user info - will execute after auth check passes
+const currentUserJson = localStorage.getItem('currentUser');
+const user = currentUserJson ? JSON.parse(currentUserJson) : { name: 'Guest', email: 'guest@example.com' };
+
+document.getElementById('userInitial').textContent = (user.name||'D').charAt(0).toUpperCase();
+document.getElementById('userName').textContent = user.name||'Demo Investor';
+document.getElementById('userEmail').textContent = user.email||'demo@demo.com';
+
+// Modal helpers
+function openModal(id){
+  UIManager.showModal(id + 'Modal');
+}
+
+function closeModal(id){
+  UIManager.hideModal(id + 'Modal');
+}
+
+function copyAddr(){
+  const addr = 'TRX7kDemoAddress1234567890ABCDEF';
+  navigator.clipboard.writeText(addr).then(() => alert('Address copied!'));
+}
+
+function handleFile(input){
+  const file = input.files[0];
+  if(file && file.size > 5*1024*1024){ 
+    alert('File too large. Max 5MB.'); 
+    input.value = '';
+    return; 
+  }
+  if(file) {
+    document.getElementById('fileLabel').textContent = '✅ '+file.name;
+  }
+}
+
+function handleDrop(e){
+  e.preventDefault();
+  document.getElementById('fileDrop').classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if(file){ document.getElementById('fileLabel').textContent = '✅ '+file.name; }
+}
+
+function submitReceipt(){
+  const txid = document.getElementById('txid').value.trim();
+  const amount = document.getElementById('amountSent').value;
+  const walletType = document.getElementById('walletType').value;
+  const date = document.getElementById('dateSent').value;
+  const fileInput = document.getElementById('fileInput');
+  const file = fileInput.files[0];
+  
+  if(!txid || !amount || !walletType || !date) { 
+    alert('Please fill all required fields.'); 
+    return; 
+  }
+  
+  const token = localStorage.getItem('authToken');
+  if (!token) {
+    alert('Please login first');
+    window.location.href = 'login.html';
+    return;
+  }
+  
+  const btn = document.getElementById('receiptBtn');
+  btn.innerHTML = '<span class="spinner"></span> SUBMITTING...';
+  btn.disabled = true;
+  
+  // Handle file upload if file exists
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const base64File = e.target.result;
+      sendReceiptToBackend(txid, amount, walletType, base64File, file.name, token, btn);
+    };
+    reader.onerror = function() {
+      alert('Error reading file. Please try again.');
+      btn.innerHTML = 'SUBMIT RECEIPT';
+      btn.disabled = false;
+    };
+    reader.readAsDataURL(file);
+  } else {
+    // Send without file
+    sendReceiptToBackend(txid, amount, walletType, null, null, token, btn);
+  }
+}
+
+function sendReceiptToBackend(txid, amount, walletType, base64Proof, fileName, token, btn) {
+  // Step 1: Create a temporary investment for this manual deposit
+  // Use starlink package as default (30-day term, 2x return)
+  const investmentBody = {
+    packageId: 'starlink',
+    amount: parseFloat(amount)
+  };
+  
+  fetch('/api/investments', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(investmentBody)
+  })
+  .then(r => r.json())
+  .then(investmentData => {
+    if (investmentData.success && investmentData.investment.id) {
+      // Investment created, now submit receipt linked to it
+      const receiptBody = {
+        investmentId: investmentData.investment.id,
+        amount: parseFloat(amount),
+        walletType: walletType,
+        transactionId: txid
+      };
+      
+      if (base64Proof) {
+        receiptBody.proofBase64 = base64Proof;
+        receiptBody.proofFileName = fileName;
+      }
+      
+      fetch('/api/payments/receipt', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(receiptBody)
+      })
+      .then(r => r.json())
+      .then(receiptData => {
+        if (receiptData.success) {
+          document.getElementById('receiptForm').style.display = 'none';
+          document.getElementById('receiptSuccess').classList.remove('hidden');
+          // Refresh dashboard data
+          setTimeout(() => {
+            renderAll();
+          }, 1500);
+        } else {
+          alert('Error submitting receipt: ' + (receiptData.error || 'Unknown error'));
+          btn.innerHTML = 'SUBMIT RECEIPT';
+          btn.disabled = false;
+        }
+      })
+      .catch(err => {
+        console.error('Receipt submission error:', err);
+        alert('Connection error. Please try again.');
+        btn.innerHTML = 'SUBMIT RECEIPT';
+        btn.disabled = false;
+      });
+    } else {
+      alert('Error creating deposit: ' + (investmentData.error || 'Unknown error'));
+      btn.innerHTML = 'SUBMIT RECEIPT';
+      btn.disabled = false;
+    }
+  })
+  .catch(err => {
+    console.error('Investment creation error:', err);
+    alert('Connection error. Please try again.');
+    btn.innerHTML = 'SUBMIT RECEIPT';
+    btn.disabled = false;
+  });
+}
+
+function submitWithdraw(){
+  const amount = parseFloat(document.getElementById('wdAmount').value);
+  const wallet = document.getElementById('wdWallet').value.trim();
+  const user = AuthManager.getCurrentUser();
+  const bal = parseFloat(user.balance||0);
+  if(!amount||amount<50){ alert('Minimum withdrawal is $50.'); return; }
+  if(!wallet){ alert('Please enter your wallet address.'); return; }
+  if(amount > bal){ alert(`Insufficient balance. Available: $${bal.toFixed(2)}`); return; }
+  const btn = document.getElementById('wdBtn');
+  btn.innerHTML='<span class="spinner"></span> PROCESSING...';
+  btn.disabled=true;
+  setTimeout(()=>{
+    closeModal('withdraw');
+    alert(`✅ Withdrawal request of $${amount.toFixed(2)} submitted!\n\nIt will be processed within 1–24 hours.`);
+    renderAll();
+    btn.innerHTML='REQUEST WITHDRAWAL';
+    btn.disabled=false;
+  },1500);
+}
+
+function logout(){ 
+  AuthManager.logout();
+  window.location.href = '/pages/login.html'; 
+}
+
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const backdrop = document.getElementById('sidebarBackdrop');
+  sidebar.classList.toggle('open');
+  backdrop.classList.toggle('open');
+}
+
+function closeSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const backdrop = document.getElementById('sidebarBackdrop');
+  sidebar.classList.remove('open');
+  backdrop.classList.remove('open');
+}
+
+// Close sidebar when a link is clicked
+document.addEventListener('DOMContentLoaded', function() {
+  const sidebarLinks = document.querySelectorAll('.sidebar-nav a');
+  sidebarLinks.forEach(link => {
+    link.addEventListener('click', closeSidebar);
+  });
+});
+
+function renderAll(){ 
+  renderStats(); 
+  renderInvestments(); 
+  renderTransactions(); 
+  renderTracker(); 
+}
+
+function renderStats() {
+  const token = localStorage.getItem('authToken');
+  if (!token) {
+    // Not logged in, show $0
+    document.getElementById('cardBalance').textContent = '$0.00';
+    document.getElementById('cardInvested').textContent = '$0.00';
+    document.getElementById('cardPending').textContent = '$0.00';
+    document.getElementById('cardProfit').textContent = '$0.00';
+    return;
+  }
+
+  // Fetch real stats from backend MongoDB
+  fetch('/api/user/stats', {
+    headers: { 
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    }
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data && data.user) {
+      const user = data.user;
+      
+      // Update localStorage with fresh user data from backend
+      localStorage.setItem('currentUser', JSON.stringify(user));
+      
+      const balance = Number(user.activeBalance || 0);
+      const invested = Number(user.totalInvested || 0);
+      
+      document.getElementById('cardBalance').textContent = '$' + balance.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+      document.getElementById('cardInvested').textContent = '$' + invested.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+      document.getElementById('cardPending').textContent = user.pendingCount || 0;
+      
+      // Calculate profit (expected profit from active balance)
+      const profit = Number(user.totalProfit || user.activeBalance || 0);
+      document.getElementById('cardProfit').textContent = '$' + profit.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    } else {
+      // Error fetching, show $0
+      document.getElementById('cardBalance').textContent = '$0.00';
+      document.getElementById('cardInvested').textContent = '$0.00';
+      document.getElementById('cardPending').textContent = '0';
+      document.getElementById('cardProfit').textContent = '$0.00';
+    }
+  })
+  .catch(err => {
+    console.error('Error fetching stats:', err);
+    // Show $0 on error
+    document.getElementById('cardBalance').textContent = '$0.00';
+    document.getElementById('cardInvested').textContent = '$0.00';
+    document.getElementById('cardPending').textContent = '0';
+    document.getElementById('cardProfit').textContent = '$0.00';
+  });
+}
+
+// Auto-refresh stats every 5 seconds to show updated balance
+setInterval(renderStats, 5000);
+
+function renderInvestments() {
+  const tbody = document.getElementById('investTable');
+  const detailsContainer = document.getElementById('investmentDetailsContainer');
+  const token = localStorage.getItem('authToken');
+  
+  if (!token) {
+    tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><i class="fas fa-satellite-dish"></i> Please login to view investments.</td></tr>';
+    detailsContainer.innerHTML = '';
+    return;
+  }
+  
+  tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:20px"><span class="spinner"></span> Loading...</td></tr>';
+  
+  fetch('/api/investments', {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    }
+  })
+  .then(r => {
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    return r.json();
+  })
+  .then(data => {
+    if (!data || !data.investments || data.investments.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><i class="fas fa-satellite-dish"></i> No active investments. <a href="invest.html" style="color:var(--red)">Start investing →</a></td></tr>';
+      detailsContainer.innerHTML = '';
+      updateProfitCard(0);
+      return;
+    }
+    
+    tbody.innerHTML = '';
+    detailsContainer.innerHTML = '';
+    const packages = typeof INVESTMENT_PACKAGES !== 'undefined' ? INVESTMENT_PACKAGES : [];
+    
+    let totalAccruedProfit = 0;
+    
+    data.investments.forEach((inv) => {
+      const pkg = packages.find(p => p.id === inv.packageId);
+      const pkgName = pkg ? pkg.name : 'Investment';
+      const multiplier = pkg ? pkg.multiplier : 2;
+      const duration = pkg ? pkg.duration : 30;
+      
+      // Calculate accruing balance
+      const startDate = new Date(inv.startDate);
+      const maturityDate = new Date(inv.maturityDate);
+      const today = new Date();
+      const elapsedMs = today - startDate;
+      const elapsedDays = Math.floor(elapsedMs / (1000 * 60 * 60 * 24));
+      const daysRemaining = Math.max(0, duration - elapsedDays);
+      
+      // Daily profit calculation
+      const totalReturn = inv.amount * (multiplier - 1);
+      const dailyProfit = totalReturn / duration;
+      
+      // Current accrued profit
+      const accruedProfit = dailyProfit * elapsedDays;
+      totalAccruedProfit += accruedProfit;
+      
+      const matDateStr = maturityDate.toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'});
+      const statusBadgeClass = inv.status === 'active' ? 'badge-active' : 
+                               inv.status === 'pending_review' ? 'badge-pending' : 'badge-completed';
+      const statusText = inv.status === 'pending_review' ? 'PENDING' : inv.status.toUpperCase();
+      
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td><strong>${pkgName}</strong></td>
+        <td>$${Number(inv.amount).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+        <td style="color:#22c55e;font-weight:600">+$${Number(accruedProfit).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+        <td style="color:#4A9FD4">+$${Number(dailyProfit).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}/day</td>
+        <td><span style="background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.3);color:#fbbf24;padding:2px 8px;border-radius:3px">${daysRemaining}d</span></td>
+        <td>${matDateStr}</td>
+        <td><span class="badge ${statusBadgeClass}">${statusText}</span></td>
+      `;
+      tbody.appendChild(row);
+    });
+    
+    // Update profit card with total accrued earnings
+    updateProfitCard(totalAccruedProfit);
+    
+    // Auto-refresh every 30 seconds to show live accrual
+    setTimeout(renderInvestments, 30000);
+  })
+  .catch(err => {
+    console.error('Error fetching investments:', err);
+    tbody.innerHTML = '<tr><td colspan="7" class="empty-state" style="color:#ef4444"><i class="fas fa-exclamation"></i> Error loading investments (Backend may be offline)</td></tr>';
+    detailsContainer.innerHTML = '';
+  });
+}
+
+function updateProfitCard(profit) {
+  const profitCard = document.getElementById('cardProfit');
+  if (profitCard) {
+    profitCard.textContent = '$' + Number(profit).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+  }
+}
+
+function renderTransactions() {
+  const tbody = document.getElementById('txTable');
+  const token = localStorage.getItem('authToken');
+  
+  if (!token) {
+    tbody.innerHTML = '<tr><td colspan="5" class="empty-state"><i class="fas fa-clock"></i> Please login to view transactions.</td></tr>';
+    return;
+  }
+  
+  tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px"><span class="spinner"></span> Loading...</td></tr>';
+  
+  fetch('/api/payments/receipts', {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    }
+  })
+  .then(r => {
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    return r.json();
+  })
+  .then(data => {
+    if (!data || !data.receipts || data.receipts.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" class="empty-state"><i class="fas fa-clock"></i> No receipt submissions yet. <a href="invest.html" style="color:var(--red)">Submit an investment →</a></td></tr>';
+      return;
+    }
+    
+    tbody.innerHTML = '';
+    data.receipts.forEach(receipt => {
+      const date = new Date(receipt.createdAt).toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'});
+      const statusBadgeClass = receipt.status === 'approved' ? 'badge-completed' : 
+                               receipt.status === 'pending_review' ? 'badge-pending' : 
+                               receipt.status === 'rejected' ? 'badge-rejected' : 'badge-active';
+      const statusText = receipt.status === 'pending_review' ? 'PENDING' : receipt.status.toUpperCase();
+      
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${date}</td>
+        <td>💰 Deposit</td>
+        <td>$${Number(receipt.amount).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+        <td style="font-family:monospace;font-size:0.8rem">${receipt.transactionId.substring(0, 16)}...</td>
+        <td><span class="badge ${statusBadgeClass}">${statusText}</span></td>
+      `;
+      tbody.appendChild(row);
+    });
+  })
+  .catch(err => {
+    console.error('Error fetching receipts:', err);
+    tbody.innerHTML = '<tr><td colspan="5" class="empty-state" style="color:#ef4444"><i class="fas fa-exclamation"></i> Error loading transactions (Backend may be offline)</td></tr>';
+  });
+}
+
+function renderTracker() {
+  document.getElementById('statusTracker').innerHTML = `
+    <div class="progress-step" style="flex:1;text-align:center">
+      <div class="step-circle" style="border-color:#22c55e;background:rgba(34,197,94,0.1);color:#22c55e">✓</div>
+      <div class="step-label">All deposits verified!</div>
+    </div>
+  `;
+  document.getElementById('trackerMsg').textContent = 'Upload your payment receipt to begin.';
+}
+
+function openModal(id) {
+  document.getElementById(id + 'Modal').classList.remove('hidden');
+}
+
+function closeModal(id) {
+  document.getElementById(id + 'Modal').classList.add('hidden');
+}
+
+function copyAddr() {
+  const addr = 'TRX7kDemoAddress1234567890ABCDEF';
+  navigator.clipboard.writeText(addr).then(() => alert('Address copied!'));
+}
+
+// Don't call renderAll() here - app.js hasn't loaded yet!
+// Instead call it after app.js loads (see below)
+</script>
+<script>
+// Populate sidebar with real user info from MongoDB backend
+function populateUserInfo() {
+  const token = localStorage.getItem('authToken');
+  if (!token) {
+    // Not logged in
+    document.getElementById('userName').textContent = 'Guest';
+    document.getElementById('userEmail').textContent = 'Not logged in';
+    document.getElementById('userInitial').textContent = 'U';
+    return;
+  }
+  
+  // Fetch user profile from backend MongoDB
+  fetch('/api/user/profile', {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    }
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data && data.user) {
+      const user = data.user;
+      
+      // Update localStorage with fresh user data from backend
+      localStorage.setItem('currentUser', JSON.stringify(user));
+      
+      // Update sidebar display
+      const nameEl = document.getElementById('userName');
+      const emailEl = document.getElementById('userEmail');
+      const initialEl = document.getElementById('userInitial');
+      
+      if (nameEl && user.name) nameEl.textContent = user.name;
+      if (emailEl && user.email) emailEl.textContent = user.email;
+      if (initialEl && user.name) initialEl.textContent = user.name[0].toUpperCase();
+    }
+  })
+  .catch(err => {
+    console.error('Error fetching user profile:', err);
+    // Fallback: try to use cached currentUser from localStorage
+    try {
+      const cached = JSON.parse(localStorage.getItem('currentUser') || '{}');
+      if (cached.name && cached.email) {
+        document.getElementById('userName').textContent = cached.name;
+        document.getElementById('userEmail').textContent = cached.email;
+        document.getElementById('userInitial').textContent = cached.name[0].toUpperCase();
+      }
+    } catch (e) {
+      // If everything fails, show generic
+      document.getElementById('userName').textContent = 'User';
+      document.getElementById('userEmail').textContent = 'Loading...';
+    }
+  });
+}
+
+// Render investment packages into the dashboard modal
+function openInvestmentModal() {
+  // Ensure user is logged in
+  try {
+    if (typeof AuthManager !== 'undefined' && !AuthManager.isLoggedIn()) {
+      window.location.href = '/pages/login.html';
+      return;
+    }
+  } catch (e) { /* ignore */ }
+
+  const container = document.getElementById('investmentPackagesContainer');
+  if (!container) {
+    document.getElementById('investmentModalDash').classList.remove('hidden');
+    return;
+  }
+  container.innerHTML = '';
+
+  // INVESTMENT_PACKAGES is defined in app.js; if not available, show fallback link
+  if (typeof INVESTMENT_PACKAGES === 'undefined') {
+    container.innerHTML = '<div class="empty-state">Investment packages are unavailable. <a href="#" onclick="openInvestmentModal();return false;" style="color:var(--red)">Try again →</a></div>';
+    document.getElementById('investmentModalDash').classList.remove('hidden');
+    return;
+  }
+
+  INVESTMENT_PACKAGES.forEach(pkg => {
+    const card = document.createElement('div');
+    card.style.background = 'var(--surface)';
+    card.style.border = '1px solid var(--border)';
+    card.style.padding = '16px';
+    card.style.borderRadius = '8px';
+    card.innerHTML = `
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+        <div style="font-size:1.6rem">${pkg.icon || '📦'}</div>
+        <div>
+          <div style="font-weight:700">${pkg.name}</div>
+          <div style="font-size:0.85rem;color:#888">Min: $${pkg.minInvestment} • ${pkg.duration} days</div>
+        </div>
+      </div>
+      <div style="margin-bottom:12px;color:#aaa">${pkg.description || ''}</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="action-btn primary" style="padding:8px 12px;font-size:0.85rem" onclick="selectPackageForInvestment('${pkg.id}')">Invest</button>
+        <div style="margin-left:auto;font-weight:700">Return ×${pkg.multiplier||1}</div>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+
+  document.getElementById('investmentModalDash').classList.remove('hidden');
+}
+
+// Called when user clicks Invest on a package inside the dashboard modal
+function selectPackageForInvestment(packageId) {
+  // Find the package
+  const pkg = (typeof INVESTMENT_PACKAGES !== 'undefined') ? INVESTMENT_PACKAGES.find(p => p.id === packageId) : null;
+  if (!pkg) { alert('Package not found.'); return; }
+
+  // Close the packages modal and show an inline investment card in the dashboard
+  document.getElementById('investmentModalDash').classList.add('hidden');
+
+  // Create or populate an inline investment form area under the Quick Actions
+  let inlineArea = document.getElementById('inlineInvestmentArea');
+  if (!inlineArea) {
+    inlineArea = document.createElement('div');
+    inlineArea.id = 'inlineInvestmentArea';
+    inlineArea.style.marginTop = '16px';
+    inlineArea.className = 'table-wrap';
+    const content = document.querySelector('.content');
+    content.insertBefore(inlineArea, content.firstChild.nextSibling); // after stat cards
+  }
+
+  inlineArea.innerHTML = `
+    <div style="padding:18px;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+        <div style="font-size:1.6rem">${pkg.icon||'📦'}</div>
+        <div>
+          <div style="font-weight:800;font-size:1.1rem">Invest in ${pkg.name}</div>
+          <div style="color:#888;font-size:0.85rem">Min: $${pkg.minInvestment} • ${pkg.duration} days • Return ×${pkg.multiplier||1}</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:12px;align-items:center">
+        <input id="inlineInvestAmount" type="number" min="${pkg.minInvestment}" placeholder="Amount (min $${pkg.minInvestment})" style="padding:10px;border:1px solid var(--border);background:transparent;color:#fff;flex:1">
+        <button class="action-btn primary" id="inlineInvestBtn" onclick="confirmInlineInvestment('${pkg.id}')">INVEST</button>
+        <button class="action-btn" onclick="removeInlineInvestment()">CANCEL</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('inlineInvestAmount').focus();
+}
+
+function confirmInlineInvestment(pkgId) {
+  const amountEl = document.getElementById('inlineInvestAmount');
+  const amount = parseFloat(amountEl.value);
+  const pkg = INVESTMENT_PACKAGES.find(p => p.id === pkgId);
+  if (!pkg) { alert('Package not found.'); return; }
+  if (!amount || amount < pkg.minInvestment) { alert(`Minimum investment for ${pkg.name} is $${pkg.minInvestment}`); return; }
+
+  // Store payment info globally for crypto payment modal
+  window.currentPaymentInfo = {
+    packageId: pkgId,
+    packageName: pkg.name,
+    amount: amount,
+    returnAmount: amount * (pkg.multiplier || 1),
+    duration: pkg.duration
+  };
+
+  // Show crypto payment modal instead of processing directly
+  openCryptoPaymentModal(pkg.name, amount);
+}
+
+function removeInlineInvestment(){
+  const inline = document.getElementById('inlineInvestmentArea');
+  if (inline) inline.remove();
+}
+
+function openCryptoPaymentModal(packageName, amount) {
+  // Populate payment modal with investment details
+  document.getElementById('paymentPackageName').textContent = packageName;
+  document.getElementById('paymentAmount').textContent = '$' + amount.toFixed(2);
+  const returnAmount = amount * (INVESTMENT_PACKAGES.find(p => p.name === packageName)?.multiplier || 1);
+  document.getElementById('paymentReturn').textContent = '$' + returnAmount.toFixed(2);
+  document.getElementById('paymentSubtitle').textContent = `Send $${amount.toFixed(2)} in cryptocurrency to invest`;
+  
+  // Reset form
+  document.getElementById('cryptoSelect').value = '';
+  document.getElementById('cryptoAddressContainer').style.display = 'none';
+  document.getElementById('txidInput').value = '';
+  
+  // Show modal
+  document.getElementById('cryptoPaymentModal').classList.remove('hidden');
+}
+
+function closeCryptoModal() {
+  document.getElementById('cryptoPaymentModal').classList.add('hidden');
+  window.currentPaymentInfo = null;
+  removeInlineInvestment();
+}
+
+function updateCryptoAddress() {
+  const selected = document.getElementById('cryptoSelect').value;
+  const container = document.getElementById('cryptoAddressContainer');
+  
+  if (!selected) {
+    container.style.display = 'none';
+    return;
+  }
+  
+  // Get address from CRYPTO_WALLETS (defined in app.js)
+  let address = '';
+  if (typeof CRYPTO_WALLETS !== 'undefined') {
+    address = CRYPTO_WALLETS[selected] || '';
+  }
+  
+  if (!address) {
+    alert('Wallet address not configured.');
+    return;
+  }
+  
+  document.getElementById('cryptoAddress').value = address;
+  container.style.display = 'block';
+}
+
+function copyCryptoAddress() {
+  const addr = document.getElementById('cryptoAddress').value;
+  navigator.clipboard.writeText(addr).then(() => {
+    const btn = event.target.closest('button');
+    const oldHTML = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-check"></i> COPIED!';
+    setTimeout(() => { btn.innerHTML = oldHTML; }, 2000);
+  });
+}
+
+function confirmCryptoPayment() {
+  const info = window.currentPaymentInfo;
+  if (!info) {
+    alert('Payment info missing.');
+    return;
+  }
+  
+  const cryptoMethod = document.getElementById('cryptoSelect').value;
+  const txid = document.getElementById('txidInput').value.trim();
+  
+  if (!cryptoMethod) {
+    alert('Please select a payment method.');
+    return;
+  }
+  
+  // Create investment record (pending approval)
+  const investmentRecord = {
+    packageId: info.packageId,
+    packageName: info.packageName,
+    amount: info.amount,
+    expectedReturn: info.returnAmount,
+    duration: info.duration,
+    cryptoMethod: cryptoMethod,
+    txid: txid,
+    status: 'pending', // pending admin approval
+    createdAt: new Date().toLocaleDateString()
+  };
+  
+  // Show processing
+  const btn = event.target.closest('button');
+  btn.innerHTML = '<span class="spinner"></span> PROCESSING...';
+  btn.disabled = true;
+  
+  setTimeout(() => {
+    // Close modal
+    closeCryptoModal();
+    
+    // Add to investments table as PENDING
+    const tbody = document.getElementById('investTable');
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${info.packageName}</td>
+      <td>$${info.amount.toFixed(2)}</td>
+      <td>${investmentRecord.createdAt}</td>
+      <td>+${info.duration} days</td>
+      <td>$${info.returnAmount.toFixed(2)}</td>
+      <td class="badge badge-pending">Pending</td>
+    `;
+    if (tbody) {
+      tbody.innerHTML = '';
+      tbody.appendChild(tr);
+    }
+    
+    // Show success message
+    alert(`✅ Investment of $${info.amount.toFixed(2)} submitted for approval!\n\nYour investment is pending admin verification. Once confirmed, it will become active.\n\nCrypto: ${cryptoMethod}\n${txid ? 'TxID: ' + txid : ''}`);
+    
+    renderAll();
+    
+    btn.innerHTML = 'CONFIRM PAYMENT SENT';
+    btn.disabled = false;
+  }, 1500);
+}
+</script>
+<script src="../app.js"></script>
+<script>
+// FIRST: Clean up any corrupted localStorage data from previous bug
+(function() {
+  const currentUser = localStorage.getItem('currentUser');
+  if (currentUser && currentUser.includes('@') && !currentUser.startsWith('{')) {
+    console.warn('🧹 Cleaning corrupted localStorage data...');
+    localStorage.removeItem('currentUser');
+  }
+})();
+
+// Now that app.js is loaded, we can call renderAll()
+document.addEventListener('DOMContentLoaded', function() {
+  // Give app.js time to fully initialize
+  setTimeout(() => {
+    console.log('Populating user info...');
+    console.log('localStorage.currentUser:', localStorage.getItem('currentUser'));
+    populateUserInfo();
+    renderAll();
+    
+    // Auto-refresh balance every 30 seconds
+    setInterval(() => {
+      console.log('Auto-refreshing dashboard...');
+      renderAll();
+    }, 30000);
+  }, 100);
+});
+</script>
+</body>
+</html>

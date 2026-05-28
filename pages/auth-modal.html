@@ -1,0 +1,708 @@
+<!-- UNIVERSAL AUTH MODAL - Include in any page needing auth protection -->
+
+<style>
+  /* LIGHT/DARK MODE THEMING */
+  :root {
+    --red: #E31937;
+    --blue: #005288;
+    
+    /* Light Mode */
+    --light-bg: #FFFFFF;
+    --light-surface: #F5F5F5;
+    --light-card: #FFFFFF;
+    --light-text: #1A1A1A;
+    --light-text-secondary: #666666;
+    --light-border: #E0E0E0;
+    --light-input-bg: #F9F9F9;
+    
+    /* Dark Mode */
+    --dark-bg: #080808;
+    --dark-surface: #111111;
+    --dark-card: #1A1A1A;
+    --dark-text: #E8E8E8;
+    --dark-text-secondary: #999999;
+    --dark-border: rgba(255,255,255,0.08);
+    --dark-input-bg: rgba(255,255,255,0.04);
+  }
+
+  /* Apply theme */
+  body {
+    --bg: var(--dark-bg);
+    --surface: var(--dark-surface);
+    --card: var(--dark-card);
+    --text: var(--dark-text);
+    --text-secondary: var(--dark-text-secondary);
+    --border: var(--dark-border);
+    --input-bg: var(--dark-input-bg);
+  }
+
+  body.light-mode {
+    --bg: var(--light-bg);
+    --surface: var(--light-surface);
+    --card: var(--light-card);
+    --text: var(--light-text);
+    --text-secondary: var(--light-text-secondary);
+    --border: var(--light-border);
+    --input-bg: var(--light-input-bg);
+  }
+
+  /* ============================================================================
+     AUTH MODAL STYLES
+     ============================================================================ */
+
+  .auth-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+  }
+
+  .auth-modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .auth-modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    max-width: 450px;
+    width: 100%;
+    padding: 0;
+    position: relative;
+    animation: slideUp 0.4s ease;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .auth-modal-header {
+    background: linear-gradient(135deg, rgba(227,25,55,0.1) 0%, rgba(0,82,136,0.1) 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .auth-modal-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--text);
+    margin: 0;
+  }
+
+  .auth-modal-close {
+    width: 32px;
+    height: 32px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    transition: all 0.2s;
+    border-radius: 4px;
+  }
+
+  .auth-modal-close:hover {
+    background: rgba(227,25,55,0.2);
+    color: var(--red);
+  }
+
+  .auth-modal-body {
+    padding: 28px;
+  }
+
+  /* Tabs */
+  .auth-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 24px;
+    gap: 0;
+  }
+
+  .auth-tab {
+    flex: 1;
+    padding: 12px;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    letter-spacing: 2px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.2s;
+    position: relative;
+    text-align: center;
+  }
+
+  .auth-tab:hover {
+    color: var(--text);
+  }
+
+  .auth-tab.active {
+    color: var(--red);
+  }
+
+  .auth-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--red);
+  }
+
+  .auth-tab-content {
+    display: none;
+  }
+
+  .auth-tab-content.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* Form groups */
+  .auth-form-group {
+    margin-bottom: 16px;
+  }
+
+  .auth-label {
+    display: block;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+    color: var(--text-secondary);
+    font-weight: 600;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+  }
+
+  .auth-input {
+    width: 100%;
+    padding: 12px 14px;
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    border-radius: 4px;
+    outline: none;
+    transition: border-color 0.2s, background-color 0.2s;
+  }
+
+  body.light-mode .auth-input {
+    background: #F0F0F0;
+  }
+
+  .auth-input:focus {
+    border-color: var(--red);
+    background: rgba(227,25,55,0.03);
+  }
+
+  .auth-input::placeholder {
+    color: var(--text-secondary);
+    opacity: 0.6;
+  }
+
+  /* Submit button */
+  .auth-submit-btn {
+    width: 100%;
+    padding: 14px;
+    background: var(--red);
+    color: #fff;
+    border: none;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.3s;
+    margin-top: 8px;
+  }
+
+  .auth-submit-btn:hover {
+    box-shadow: 0 0 30px rgba(227,25,55,0.4);
+    transform: translateY(-2px);
+  }
+
+  .auth-submit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .auth-submit-btn.loading {
+    position: relative;
+    color: transparent;
+  }
+
+  .auth-submit-btn.loading::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  @keyframes spin {
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+  }
+
+  /* Messages */
+  .auth-message {
+    padding: 12px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    margin-bottom: 16px;
+    display: none;
+    animation: slideIn 0.3s ease;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .auth-message.show {
+    display: block;
+  }
+
+  .auth-message.error {
+    background: rgba(239,68,68,0.1);
+    border: 1px solid rgba(239,68,68,0.3);
+    color: #ef4444;
+  }
+
+  .auth-message.success {
+    background: rgba(34,197,94,0.1);
+    border: 1px solid rgba(34,197,94,0.3);
+    color: #22c55e;
+  }
+
+  .auth-message.info {
+    background: rgba(0,82,136,0.1);
+    border: 1px solid rgba(0,82,136,0.3);
+    color: #4A9FD4;
+  }
+
+  /* Footer */
+  .auth-footer {
+    padding: 12px 0;
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+  }
+
+  .auth-footer a {
+    color: var(--red);
+    text-decoration: none;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .auth-footer a:hover {
+    text-decoration: underline;
+  }
+
+  /* ============================================================================
+     NAVBAR THEME TOGGLE & USER SECTION
+     ============================================================================ */
+
+  .theme-toggle {
+    width: 40px;
+    height: 40px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid var(--border);
+    color: var(--text);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    transition: all 0.2s;
+    border-radius: 4px;
+    position: relative;
+  }
+
+  .theme-toggle:hover {
+    background: rgba(255,255,255,0.15);
+    border-color: var(--red);
+  }
+
+  .user-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .user-avatar {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, var(--red), var(--blue));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 0.8rem;
+    color: #fff;
+  }
+
+  .user-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .logout-btn {
+    padding: 8px 16px;
+    background: rgba(227,25,55,0.2);
+    border: 1px solid rgba(227,25,55,0.3);
+    color: var(--red);
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+
+  .logout-btn:hover {
+    background: rgba(227,25,55,0.3);
+  }
+
+  /* On pages with navbar */
+  nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .nav-right {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+  }
+</style>
+
+<!-- AUTH MODAL -->
+<div class="auth-modal-overlay" id="authModal">
+  <div class="auth-modal">
+    <!-- Header -->
+    <div class="auth-modal-header">
+      <h2 class="auth-modal-title">TESLAINVEST</h2>
+      <button class="auth-modal-close" onclick="closeAuthModal()" aria-label="Close">✕</button>
+    </div>
+
+    <!-- Body -->
+    <div class="auth-modal-body">
+      <!-- Tabs -->
+      <div class="auth-tabs">
+        <button class="auth-tab active" onclick="switchAuthTab('login')">Login</button>
+        <button class="auth-tab" onclick="switchAuthTab('signup')">Sign Up</button>
+      </div>
+
+      <!-- Message Display -->
+      <div class="auth-message" id="authMessage"></div>
+
+      <!-- LOGIN TAB -->
+      <div class="auth-tab-content active" id="loginTab">
+        <form onsubmit="handleAuthLogin(event)">
+          <div class="auth-form-group">
+            <label class="auth-label">Email Address</label>
+            <input type="email" class="auth-input" id="authLoginEmail" placeholder="your@email.com" required>
+          </div>
+          <div class="auth-form-group">
+            <label class="auth-label">Password</label>
+            <input type="password" class="auth-input" id="authLoginPassword" placeholder="••••••••" required>
+          </div>
+          <button type="submit" class="auth-submit-btn" id="loginSubmitBtn">Sign In</button>
+        </form>
+        <div class="auth-footer">
+          Don't have an account? <a onclick="switchAuthTab('signup')">Create one</a>
+        </div>
+      </div>
+
+      <!-- SIGNUP TAB -->
+      <div class="auth-tab-content" id="signupTab">
+        <form onsubmit="handleAuthSignup(event)">
+          <div class="auth-form-group">
+            <label class="auth-label">Full Name</label>
+            <input type="text" class="auth-input" id="authSignupName" placeholder="John Doe" required>
+          </div>
+          <div class="auth-form-group">
+            <label class="auth-label">Email Address</label>
+            <input type="email" class="auth-input" id="authSignupEmail" placeholder="your@email.com" required>
+          </div>
+          <div class="auth-form-group">
+            <label class="auth-label">Password</label>
+            <input type="password" class="auth-input" id="authSignupPassword" placeholder="Min 8 characters" required minlength="8">
+          </div>
+          <div class="auth-form-group">
+            <label class="auth-label">Confirm Password</label>
+            <input type="password" class="auth-input" id="authSignupPasswordConfirm" placeholder="••••••••" required minlength="8">
+          </div>
+          <button type="submit" class="auth-submit-btn" id="signupSubmitBtn">Create Account</button>
+        </form>
+        <div class="auth-footer">
+          Already have an account? <a onclick="switchAuthTab('login')">Sign in</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ========== AUTH MODAL FUNCTIONS ==========
+
+  function showAuthModal(tab = 'login') {
+    const modal = document.getElementById('authModal');
+    if (modal) {
+      modal.classList.add('active');
+      switchAuthTab(tab);
+    }
+  }
+
+  function closeAuthModal() {
+    const modal = document.getElementById('authModal');
+    if (modal) {
+      modal.classList.remove('active');
+    }
+  }
+
+  function switchAuthTab(tab) {
+    // Update tabs
+    document.querySelectorAll('.auth-tab').forEach((btn, idx) => {
+      btn.classList.toggle('active', (tab === 'login' && idx === 0) || (tab === 'signup' && idx === 1));
+    });
+
+    // Update content
+    document.getElementById('loginTab')?.classList.toggle('active', tab === 'login');
+    document.getElementById('signupTab')?.classList.toggle('active', tab === 'signup');
+
+    // Clear messages
+    clearAuthMessage();
+  }
+
+  function showAuthMessage(message, type = 'info') {
+    const msgEl = document.getElementById('authMessage');
+    if (msgEl) {
+      msgEl.textContent = message;
+      msgEl.className = `auth-message show ${type}`;
+    }
+  }
+
+  function clearAuthMessage() {
+    const msgEl = document.getElementById('authMessage');
+    if (msgEl) {
+      msgEl.classList.remove('show');
+    }
+  }
+
+  function setButtonLoading(btnId, isLoading) {
+    const btn = document.getElementById(btnId);
+    if (btn) {
+      btn.disabled = isLoading;
+      btn.classList.toggle('loading', isLoading);
+    }
+  }
+
+  async function handleAuthLogin(e) {
+    e.preventDefault();
+    const email = document.getElementById('authLoginEmail').value.trim();
+    const password = document.getElementById('authLoginPassword').value;
+
+    if (!email || !password) {
+      showAuthMessage('Please enter email and password', 'error');
+      return;
+    }
+
+    setButtonLoading('loginSubmitBtn', true);
+
+    // Simulate login delay
+    setTimeout(() => {
+      const result = window.AuthManager.login(email, password);
+      setButtonLoading('loginSubmitBtn', false);
+
+      if (result.success) {
+        showAuthMessage('✓ Login successful! Redirecting...', 'success');
+        setTimeout(() => {
+          window.location.href = 'dashboard.html';
+        }, 1500);
+      } else {
+        showAuthMessage(result.message, 'error');
+      }
+    }, 800);
+  }
+
+  async function handleAuthSignup(e) {
+    e.preventDefault();
+    const name = document.getElementById('authSignupName').value.trim();
+    const email = document.getElementById('authSignupEmail').value.trim();
+    const password = document.getElementById('authSignupPassword').value;
+    const confirmPassword = document.getElementById('authSignupPasswordConfirm').value;
+
+    if (!name || !email || !password || !confirmPassword) {
+      showAuthMessage('Please fill all fields', 'error');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      showAuthMessage('Passwords do not match', 'error');
+      return;
+    }
+
+    if (password.length < 8) {
+      showAuthMessage('Password must be at least 8 characters', 'error');
+      return;
+    }
+
+    setButtonLoading('signupSubmitBtn', true);
+
+    // Simulate signup delay
+    setTimeout(() => {
+      const result = window.AuthManager.register(email, password, name);
+      setButtonLoading('signupSubmitBtn', false);
+
+      if (result.success) {
+        showAuthMessage('✓ Account created! Auto-logging you in...', 'success');
+        // Auto-login after signup
+        const loginResult = window.AuthManager.login(email, password);
+        if (loginResult.success) {
+          setTimeout(() => {
+            window.location.href = 'dashboard.html';
+          }, 1500);
+        }
+      } else {
+        showAuthMessage(result.message, 'error');
+      }
+    }, 800);
+  }
+
+  // ========== THEME TOGGLE ==========
+
+  function toggleTheme() {
+    const isDarkMode = document.body.classList.toggle('light-mode');
+    localStorage.setItem('theme', isDarkMode ? 'light' : 'dark');
+  }
+
+  function initTheme() {
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    if (savedTheme === 'light') {
+      document.body.classList.add('light-mode');
+    }
+  }
+
+  // ========== USER NAVBAR SECTION ==========
+
+  function initUserNavbar() {
+    const navRight = document.querySelector('.nav-right');
+    if (!navRight) return;
+
+    const isLoggedIn = window.AuthManager?.isLoggedIn?.();
+    
+    if (isLoggedIn) {
+      const user = window.AuthManager?.getCurrentUser?.();
+      const userName = user?.name || 'User';
+      const userInitial = userName.charAt(0).toUpperCase();
+
+      navRight.innerHTML = `
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+          <span id="themeIcon">🌙</span>
+        </button>
+        <div class="user-section">
+          <div class="user-info">
+            <div class="user-avatar">${userInitial}</div>
+            <div>
+              <div class="user-name">${userName}</div>
+            </div>
+          </div>
+          <button class="logout-btn" onclick="window.handleLogout?.()">Logout</button>
+        </div>
+      `;
+    } else {
+      navRight.innerHTML = `
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+          <span id="themeIcon">🌙</span>
+        </button>
+        <button class="logout-btn" onclick="showAuthModal('login')" style="background: linear-gradient(135deg, var(--red), var(--blue)); border: none; color: white;">Sign In</button>
+      `;
+    }
+
+    updateThemeIcon();
+  }
+
+  function updateThemeIcon() {
+    const icon = document.getElementById('themeIcon');
+    if (icon) {
+      icon.textContent = document.body.classList.contains('light-mode') ? '☀️' : '🌙';
+    }
+  }
+
+  // Close modal when clicking outside
+  document.addEventListener('click', (e) => {
+    const modal = document.getElementById('authModal');
+    if (modal && e.target === modal) {
+      closeAuthModal();
+    }
+  });
+
+  // Initialize theme on page load
+  document.addEventListener('DOMContentLoaded', () => {
+    initTheme();
+  });
+</script>

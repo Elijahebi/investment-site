@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Investment Packages — TeslaInvest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root { --red:#E31937; --blue:#005288; --bg:#080808; --surface:#111111; --glass:rgba(255,255,255,0.04); --border:rgba(255,255,255,0.08); --text:#E8E8E8; --muted:#666; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif; overflow-x:hidden; }
+  h1,h2,h3,h4,nav,.logo { font-family:'Rajdhani',sans-serif; }
+  body::before { content:''; position:fixed; inset:0; background-image:linear-gradient(rgba(255,255,255,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.02) 1px,transparent 1px); background-size:60px 60px; pointer-events:none; z-index:0; }
+  .orb-red { position:fixed; width:500px; height:500px; background:radial-gradient(circle,rgba(227,25,55,0.1) 0%,transparent 70%); top:-100px; right:-100px; pointer-events:none; z-index:0; }
+  .orb-blue { position:fixed; width:600px; height:600px; background:radial-gradient(circle,rgba(0,82,136,0.08) 0%,transparent 70%); bottom:-200px; left:-200px; pointer-events:none; z-index:0; }
+
+  nav { position:fixed; top:0; left:0; right:0; z-index:100; background:rgba(8,8,8,0.85); backdrop-filter:blur(20px); border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; padding:0 5%; height:64px; }
+  .logo { font-size:1.4rem; font-weight:700; letter-spacing:2px; text-decoration:none; color:var(--text); }
+  .logo span { color:var(--red); }
+  .nav-links { display:flex; gap:2rem; list-style:none; }
+  .nav-links a { color:#999; text-decoration:none; font-size:0.95rem; letter-spacing:1px; transition:color 0.2s; font-weight:500; }
+  .nav-links a:hover,.nav-links a.active { color:#fff; }
+  .nav-cta { background:var(--red); color:#fff; border:none; padding:8px 24px; font-family:'Rajdhani',sans-serif; font-weight:700; font-size:0.9rem; letter-spacing:2px; cursor:pointer; text-decoration:none; clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%); transition:opacity 0.2s; }
+  .nav-cta:hover { opacity:0.85; }
+  .hamburger { display:none; flex-direction:column; gap:5px; cursor:pointer; }
+  .hamburger span { width:24px; height:2px; background:#fff; }
+
+  .mobile-menu { display:none; position:fixed; inset:0; background:rgba(8,8,8,0.98); z-index:99; flex-direction:column; align-items:center; justify-content:center; gap:2rem; }
+  .mobile-menu.open { display:flex; }
+  .mobile-menu a { font-family:'Rajdhani',sans-serif; font-size:1.5rem; color:#ccc; text-decoration:none; letter-spacing:3px; font-weight:600; }
+
+  .page-hero { padding: 120px 5% 60px; text-align:center; position:relative; z-index:1; }
+  .page-tag { display:inline-block; border:1px solid rgba(227,25,55,0.4); color:var(--red); padding:4px 16px; font-size:0.75rem; letter-spacing:3px; font-weight:700; margin-bottom:1.5rem; font-family:'Rajdhani',sans-serif; }
+  .page-hero h1 { font-size:clamp(2rem,5vw,3.5rem); font-weight:700; letter-spacing:3px; margin-bottom:0.75rem; }
+  .page-hero p { color:#666; font-size:0.9rem; letter-spacing:2px; font-family:'Rajdhani',sans-serif; }
+
+  /* Cards */
+  .cards-section { padding:40px 5% 80px; position:relative; z-index:1; }
+  .cards-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:2rem; perspective:1200px; }
+
+  .card-outer { height:560px; perspective:1200px; cursor:pointer; }
+  .card-inner { position:relative; width:100%; height:100%; transform-style:preserve-3d; transition:transform 0.7s cubic-bezier(0.4,0.2,0.2,1); }
+  .card-outer:hover .card-inner { transform:rotateY(180deg); }
+  .card-front,.card-back { position:absolute; inset:0; backface-visibility:hidden; -webkit-backface-visibility:hidden; border:1px solid var(--border); background:var(--surface); padding:36px; }
+  .card-back { transform:rotateY(180deg); background:var(--glass); backdrop-filter:blur(20px); display:flex; flex-direction:column; justify-content:center; }
+
+  .plan-tag { display:inline-block; padding:3px 12px; font-size:0.7rem; letter-spacing:2px; font-family:'Rajdhani',sans-serif; font-weight:700; margin-bottom:1.5rem; }
+  .tag-starter { background:rgba(34,197,94,0.1); border:1px solid rgba(34,197,94,0.3); color:#22c55e; }
+  .tag-popular { background:rgba(227,25,55,0.1); border:1px solid rgba(227,25,55,0.3); color:var(--red); }
+  .tag-vip { background:rgba(0,82,136,0.2); border:1px solid rgba(0,82,136,0.5); color:#4A9FD4; }
+
+  .plan-icon { width:56px; height:56px; display:flex; align-items:center; justify-content:center; margin-bottom:1.5rem; font-size:1.8rem; }
+  .plan-name { font-size:1.5rem; font-weight:700; letter-spacing:2px; margin-bottom:0.25rem; }
+  .plan-return { font-size:3rem; font-weight:700; font-family:'Rajdhani',sans-serif; line-height:1; }
+  .plan-return-label { font-size:0.75rem; color:#666; letter-spacing:2px; margin-top:4px; font-family:'Rajdhani',sans-serif; margin-bottom:1.5rem; }
+  .plan-divider { height:1px; background:var(--border); margin:1.5rem 0; }
+  .plan-meta { display:flex; gap:1.5rem; margin-bottom:1.5rem; }
+  .plan-meta-item { text-align:center; }
+  .plan-meta-item .val { font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700; }
+  .plan-meta-item .lbl { font-size:0.65rem; color:#666; letter-spacing:1px; margin-top:2px; font-family:'Rajdhani',sans-serif; }
+  .plan-features { list-style:none; margin-bottom:1.5rem; }
+  .plan-features li { display:flex; align-items:center; gap:10px; padding:6px 0; font-size:0.85rem; color:#aaa; border-bottom:1px solid rgba(255,255,255,0.03); }
+  .plan-features li i { width:16px; font-size:0.75rem; }
+  .invest-btn { width:100%; padding:14px; font-family:'Rajdhani',sans-serif; font-weight:700; font-size:0.9rem; letter-spacing:3px; border:none; cursor:pointer; clip-path:polygon(10px 0%,100% 0%,calc(100% - 10px) 100%,0% 100%); transition:all 0.3s; }
+  .btn-green { background:#22c55e; color:#000; }
+  .btn-red { background:var(--red); color:#fff; }
+  .btn-blue { background:var(--blue); color:#fff; }
+  .invest-btn:hover { opacity:0.85; transform:scale(1.01); }
+
+  /* Back card */
+  .back-title { font-size:1rem; font-weight:700; letter-spacing:2px; margin-bottom:1.5rem; color:#aaa; font-family:'Rajdhani',sans-serif; text-align:center; }
+  .roi-row { display:flex; justify-content:space-between; margin-bottom:0.5rem; font-size:0.85rem; }
+  .roi-row .lbl { color:#666; }
+  .roi-row .val { font-weight:600; }
+  .slider-wrap { margin:1.5rem 0; }
+  .slider-wrap label { display:flex; justify-content:space-between; font-size:0.8rem; color:#666; font-family:'Rajdhani',sans-serif; margin-bottom:0.75rem; letter-spacing:1px; }
+  input[type=range] { width:100%; -webkit-appearance:none; height:2px; background:var(--border); outline:none; cursor:pointer; }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:16px; height:16px; background:var(--red); cursor:pointer; }
+  .roi-result { background:rgba(255,255,255,0.03); border:1px solid var(--border); padding:20px; text-align:center; margin-top:1.5rem; }
+  .roi-result .profit { font-family:'Rajdhani',sans-serif; font-size:2rem; font-weight:700; }
+  .roi-result .profit-label { font-size:0.75rem; color:#666; letter-spacing:2px; font-family:'Rajdhani',sans-serif; }
+
+  /* Popular badge */
+  .popular-wrap { position:relative; }
+  .popular-badge { position:absolute; top:-12px; left:50%; transform:translateX(-50%); background:var(--red); color:#fff; font-family:'Rajdhani',sans-serif; font-weight:700; font-size:0.7rem; letter-spacing:2px; padding:4px 16px; z-index:10; clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%); white-space:nowrap; }
+
+  /* Crypto section */
+  .crypto-section { padding:0 5% 80px; position:relative; z-index:1; }
+  .crypto-title { text-align:center; font-size:1.5rem; font-weight:700; letter-spacing:3px; margin-bottom:0.5rem; }
+  .crypto-sub { text-align:center; color:#555; font-size:0.8rem; letter-spacing:2px; margin-bottom:2rem; font-family:'Rajdhani',sans-serif; }
+  .crypto-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:1rem; }
+  .crypto-card { background:var(--glass); border:1px solid var(--border); padding:24px; text-align:center; transition:border-color 0.3s; }
+  .crypto-card:hover { border-color:rgba(227,25,55,0.3); }
+  .crypto-card i { font-size:2rem; margin-bottom:0.75rem; display:block; }
+  .crypto-card h4 { font-weight:700; letter-spacing:1px; font-size:0.9rem; margin-bottom:0.25rem; }
+  .crypto-card p { color:#555; font-size:0.75rem; }
+
+  /* Modal */
+  .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.85); backdrop-filter:blur(8px); z-index:200; display:flex; align-items:center; justify-content:center; padding:20px; }
+  .modal-overlay.hidden { display:none; }
+  .modal { background:#141414; border:1px solid var(--border); width:100%; max-width:480px; padding:40px; position:relative; }
+  .modal-close { position:absolute; top:16px; right:16px; background:none; border:none; color:#666; font-size:1.2rem; cursor:pointer; }
+  .modal-close:hover { color:#fff; }
+  .modal h2 { font-size:1.5rem; font-weight:700; letter-spacing:2px; margin-bottom:0.5rem; }
+  .modal p.sub { color:#666; font-size:0.85rem; margin-bottom:2rem; }
+  .form-group { margin-bottom:1.25rem; }
+  .form-group label { display:block; font-size:0.75rem; letter-spacing:2px; color:#888; font-family:'Rajdhani',sans-serif; font-weight:600; margin-bottom:0.5rem; }
+  .form-group input { width:100%; background:rgba(255,255,255,0.04); border:1px solid var(--border); color:#fff; padding:12px 14px; font-family:'DM Sans',sans-serif; font-size:0.9rem; outline:none; transition:border-color 0.2s; }
+  .form-group input:focus { border-color:rgba(227,25,55,0.4); }
+  .modal-plan-info { background:rgba(227,25,55,0.05); border:1px solid rgba(227,25,55,0.15); padding:16px; margin-bottom:1.5rem; }
+  .modal-plan-info .row { display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom:4px; }
+  .modal-plan-info .row .v { font-weight:600; }
+
+  @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+  .fade-up { animation:fadeUp 0.7s ease forwards; opacity:0; }
+  .delay-1{animation-delay:0.1s} .delay-2{animation-delay:0.2s} .delay-3{animation-delay:0.3s}
+
+  @media(max-width:1024px){
+    .cards-grid{grid-template-columns:repeat(2,1fr);gap:1.5rem}
+    .cards-section{padding:40px 4% 60px}
+    .crypto-section{padding:0 4% 60px}
+  }
+
+  @media(max-width:768px){
+    nav{padding:0 4%;height:56px}
+    .logo{font-size:1rem;letter-spacing:1px}
+    .nav-links,.nav-cta{display:none}
+    .hamburger{display:flex}
+    .page-hero{padding:80px 4% 40px}
+    .page-hero h1{font-size:clamp(1.5rem,4vw,2.5rem)}
+    .page-hero p{font-size:0.85rem}
+    .page-tag{font-size:0.65rem;padding:3px 12px}
+    .cards-section{padding:30px 4% 50px}
+    .cards-grid{grid-template-columns:1fr;gap:1rem}
+    .card-outer{height:auto;perspective:none}
+    .card-inner{transform-style:flat;transform:none!important}
+    .card-front{position:relative;transform:none!important}
+    .card-back{display:none!important}
+    .card-outer:hover .card-inner{transform:none}
+    .card-front,.card-back{padding:24px}
+    .plan-icon{width:48px;height:48px;font-size:1.5rem}
+    .plan-name{font-size:1.2rem}
+    .plan-return{font-size:2.2rem}
+    .plan-meta{gap:1rem}
+    .plan-meta-item .val{font-size:1rem}
+    .plan-features li{font-size:0.8rem;padding:4px 0}
+    .crypto-section{padding:0 4% 40px}
+    .crypto-title{font-size:1.2rem}
+    .crypto-sub{font-size:0.75rem}
+    .crypto-grid{grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:0.75rem}
+    .crypto-card{padding:16px}
+    .crypto-card i{font-size:1.5rem;margin-bottom:0.5rem}
+    .crypto-card h4{font-size:0.8rem}
+    .crypto-card p{font-size:0.7rem}
+    .modal{padding:30px;max-width:calc(100% - 20px)}
+    .modal h2{font-size:1.3rem}
+    .form-group input{padding:11px 12px;font-size:0.9rem}
+  }
+
+  @media(max-width:480px){
+    nav{padding:0 3%;height:50px;flex-wrap:wrap}
+    .logo{font-size:0.85rem}
+    .hamburger{width:32px;height:auto;gap:4px}
+    .hamburger span{width:20px;height:1.5px}
+    .page-hero{padding:60px 3% 30px}
+    .page-hero h1{font-size:clamp(1.2rem,3.5vw,1.8rem);letter-spacing:2px}
+    .page-hero p{font-size:0.8rem;letter-spacing:1px}
+    .page-tag{font-size:0.6rem;padding:2px 10px}
+    .cards-section{padding:20px 3% 40px}
+    .cards-grid{gap:0.75rem}
+    .card-front,.card-back{padding:20px}
+    .plan-tag{font-size:0.65rem;padding:2px 10px;margin-bottom:1rem}
+    .plan-icon{width:44px;height:44px;font-size:1.3rem;margin-bottom:1rem}
+    .plan-name{font-size:1rem}
+    .plan-return{font-size:1.8rem}
+    .plan-return-label{font-size:0.7rem;margin-bottom:1rem}
+    .plan-divider{margin:1rem 0}
+    .plan-meta{gap:1rem;margin-bottom:1rem}
+    .plan-meta-item .val{font-size:0.95rem}
+    .plan-meta-item .lbl{font-size:0.6rem}
+    .plan-features{margin-bottom:1rem}
+    .plan-features li{font-size:0.75rem;padding:3px 0}
+    .invest-btn{padding:12px;font-size:0.85rem;letter-spacing:2px}
+    .back-title{font-size:0.9rem;margin-bottom:1rem}
+    .roi-row{font-size:0.8rem}
+    .slider-wrap label{font-size:0.75rem;margin-bottom:0.5rem}
+    .roi-result{padding:16px;margin-top:1rem}
+    .roi-result .profit{font-size:1.6rem}
+    .roi-result .profit-label{font-size:0.7rem}
+    .crypto-section{padding:0 3% 30px}
+    .crypto-title{font-size:1rem;letter-spacing:2px}
+    .crypto-sub{font-size:0.7rem}
+    .crypto-grid{grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:0.5rem}
+    .crypto-card{padding:12px}
+    .crypto-card i{font-size:1.2rem;margin-bottom:0.3rem}
+    .crypto-card h4{font-size:0.75rem}
+    .crypto-card p{font-size:0.65rem}
+    .modal{padding:20px;border-radius:4px}
+    .modal h2{font-size:1.1rem;letter-spacing:1px}
+    .modal p.sub{font-size:0.8rem;margin-bottom:1.5rem}
+    .form-group{margin-bottom:1rem}
+    .form-group label{font-size:0.7rem}
+    .form-group input{padding:10px 11px;font-size:0.85rem}
+    .modal-plan-info{padding:12px;margin-bottom:1rem}
+    .modal-plan-info .row{font-size:0.8rem;margin-bottom:3px}
+    body::before{background-size:40px 40px}
+  }
+
+</style>
+</head>
+<body>
+
+<div class="orb-red"></div>
+<div class="orb-blue"></div>
+
+<div class="mobile-menu" id="mobileMenu">
+  <a href="index.html">Home</a>
+  <a href="packages.html">Packages</a>
+  <a href="dashboard.html">Dashboard</a>
+  <a href="login.html">Login</a>
+  <a href="#" onclick="document.getElementById('mobileMenu').classList.remove('open')">✕ Close</a>
+</div>
+
+<nav>
+  <a href="index.html" class="logo">TESLA<span>INVEST</span></a>
+  <ul class="nav-links">
+    <li><a href="index.html">HOME</a></li>
+    <li><a href="packages.html" class="active">PACKAGES</a></li>
+    <li><a href="dashboard.html">DASHBOARD</a></li>
+    <li><a href="admin.html">ADMIN</a></li>
+  </ul>
+  <a href="/pages/login.html" class="nav-cta">LOGIN</a>
+  <div class="hamburger" onclick="document.getElementById('mobileMenu').classList.toggle('open')">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<div class="page-hero">
+  <div class="page-tag fade-up">⚡ HIGH-YIELD PLANS</div>
+  <h1 class="fade-up delay-1">INVESTMENT PACKAGES</h1>
+  <p class="fade-up delay-2">HOVER CARDS TO SEE ROI CALCULATOR — CLICK INVEST TO START</p>
+</div>
+
+<section class="cards-section">
+  <div class="cards-grid">
+
+    <!-- Card 1: Starlink -->
+    <div class="card-outer fade-up delay-1">
+      <div class="card-inner">
+        <!-- Front -->
+        <div class="card-front">
+          <div class="plan-tag tag-starter">LOW RISK</div>
+          <div class="plan-icon">🛰️</div>
+          <div class="plan-name">STARLINK PLAN</div>
+          <div class="plan-return" style="color:#22c55e">200%</div>
+          <div class="plan-return-label">TOTAL RETURN ON MATURITY</div>
+          <div class="plan-divider"></div>
+          <div class="plan-meta">
+            <div class="plan-meta-item">
+              <div class="val">$100</div>
+              <div class="lbl">MINIMUM</div>
+            </div>
+            <div class="plan-meta-item">
+              <div class="val">30</div>
+              <div class="lbl">DAYS TERM</div>
+            </div>
+            <div class="plan-meta-item">
+              <div class="val">5%</div>
+              <div class="lbl">NET PROFIT</div>
+            </div>
+          </div>
+          <ul class="plan-features">
+            <li><i class="fas fa-check" style="color:#22c55e"></i>Low risk entry plan</li>
+            <li><i class="fas fa-check" style="color:#22c55e"></i>Daily profit accrual</li>
+            <li><i class="fas fa-check" style="color:#22c55e"></i>Instant withdrawal on maturity</li>
+            <li><i class="fas fa-check" style="color:#22c55e"></i>24/7 live support</li>
+          </ul>
+          <button class="invest-btn btn-green" onclick="openInvestmentModal('starlink')">INVEST NOW</button>
+        </div>
+        <!-- Back -->
+        <div class="card-back">
+          <div class="back-title">📊 ROI CALCULATOR</div>
+          <div class="slider-wrap">
+            <label><span>INVESTMENT AMOUNT</span><span id="sl1-val">$500</span></label>
+            <input type="range" min="100" max="10000" value="500" step="50" id="sl1" oninput="calcROI('sl1',2,'r1')">
+          </div>
+          <div class="roi-row"><span class="lbl">Investment:</span><span class="val" id="r1-inv">$500.00</span></div>
+          <div class="roi-row"><span class="lbl">Plan Return (200%):</span><span class="val" id="r1-ret">$1,000.00</span></div>
+          <div class="roi-row"><span class="lbl">Net Profit:</span><span class="val" style="color:#22c55e" id="r1-net">$500.00</span></div>
+          <div class="roi-row"><span class="lbl">Term:</span><span class="val">30 Days</span></div>
+          <div class="roi-result">
+            <div class="profit" style="color:#22c55e" id="r1">$1,000.00</div>
+            <div class="profit-label">TOTAL PAYOUT AT MATURITY</div>
+          </div>
+          <button class="invest-btn btn-green" style="margin-top:1.5rem" onclick="openInvestmentModal('starlink')">INVEST NOW</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 2: Cybercab (Popular) -->
+    <div class="card-outer popular-wrap fade-up delay-2" style="margin-top:24px">
+      <div class="popular-badge">🔥 MOST POPULAR</div>
+      <div class="card-inner" style="border:1px solid rgba(227,25,55,0.3)">
+        <!-- Front -->
+        <div class="card-front" style="border-color:rgba(227,25,55,0.3)">
+          <div class="plan-tag tag-popular">MEDIUM RISK</div>
+          <div class="plan-icon">🚖</div>
+          <div class="plan-name">CYBERCAB PLAN</div>
+          <div class="plan-return" style="color:var(--red)">300%</div>
+          <div class="plan-return-label">TOTAL RETURN ON MATURITY</div>
+          <div class="plan-divider"></div>
+          <div class="plan-meta">
+            <div class="plan-meta-item">
+              <div class="val">$500</div>
+              <div class="lbl">MINIMUM</div>
+            </div>
+            <div class="plan-meta-item">
+              <div class="val">90</div>
+              <div class="lbl">DAYS TERM</div>
+            </div>
+            <div class="plan-meta-item">
+              <div class="val">40%</div>
+              <div class="lbl">NET PROFIT</div>
+            </div>
+          </div>
+          <ul class="plan-features">
+            <li><i class="fas fa-check" style="color:var(--red)"></i>Medium risk balance</li>
+            <li><i class="fas fa-check" style="color:var(--red)"></i>+5% deposit bonus on entry</li>
+            <li><i class="fas fa-check" style="color:var(--red)"></i>Priority support queue</li>
+            <li><i class="fas fa-check" style="color:var(--red)"></i>Referral commission unlocked</li>
+          </ul>
+          <button class="invest-btn btn-red" onclick="openInvestmentModal('cybercab')">INVEST NOW</button>
+        </div>
+        <!-- Back -->
+        <div class="card-back">
+          <div class="back-title">📊 ROI CALCULATOR</div>
+          <div class="slider-wrap">
+            <label><span>INVESTMENT AMOUNT</span><span id="sl2-val">$2,000</span></label>
+            <input type="range" min="500" max="50000" value="2000" step="100" id="sl2" oninput="calcROI('sl2',3,'r2')">
+          </div>
+          <div class="roi-row"><span class="lbl">Investment:</span><span class="val" id="r2-inv">$2,000.00</span></div>
+          <div class="roi-row"><span class="lbl">Plan Return (300%):</span><span class="val" id="r2-ret">$6,000.00</span></div>
+          <div class="roi-row"><span class="lbl">Net Profit:</span><span class="val" style="color:var(--red)" id="r2-net">$4,000.00</span></div>
+          <div class="roi-row"><span class="lbl">Deposit Bonus (+5%):</span><span class="val" style="color:#22c55e" id="r2-bonus">$100.00</span></div>
+          <div class="roi-row"><span class="lbl">Term:</span><span class="val">90 Days</span></div>
+          <div class="roi-result">
+            <div class="profit" style="color:var(--red)" id="r2">$6,100.00</div>
+            <div class="profit-label">TOTAL PAYOUT AT MATURITY</div>
+          </div>
+          <button class="invest-btn btn-red" style="margin-top:1.5rem" onclick="openInvestmentModal('cybercab')">INVEST NOW</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 3: Mars Colony -->
+    <div class="card-outer fade-up delay-3">
+      <div class="card-inner">
+        <!-- Front -->
+        <div class="card-front">
+          <div class="plan-tag tag-vip">HIGH RISK — VIP</div>
+          <div class="plan-icon">🚀</div>
+          <div class="plan-name">MARS COLONY PLAN</div>
+          <div class="plan-return" style="color:#4A9FD4">400%</div>
+          <div class="plan-return-label">TOTAL RETURN ON MATURITY</div>
+          <div class="plan-divider"></div>
+          <div class="plan-meta">
+            <div class="plan-meta-item">
+              <div class="val">$2,500</div>
+              <div class="lbl">MINIMUM</div>
+            </div>
+            <div class="plan-meta-item">
+              <div class="val">180</div>
+              <div class="lbl">DAYS TERM</div>
+            </div>
+            <div class="plan-meta-item">
+              <div class="val">100%</div>
+              <div class="lbl">NET PROFIT</div>
+            </div>
+          </div>
+          <ul class="plan-features">
+            <li><i class="fas fa-check" style="color:#4A9FD4"></i>High risk, double return</li>
+            <li><i class="fas fa-check" style="color:#4A9FD4"></i>VIP withdrawal priority</li>
+            <li><i class="fas fa-check" style="color:#4A9FD4"></i>Dedicated account manager</li>
+            <li><i class="fas fa-check" style="color:#4A9FD4"></i>Compound reinvestment option</li>
+          </ul>
+          <button class="invest-btn btn-blue" onclick="openInvestmentModal('mars-colony')">INVEST NOW</button>
+        </div>
+        <!-- Back -->
+        <div class="card-back">
+          <div class="back-title">📊 ROI CALCULATOR</div>
+          <div class="slider-wrap">
+            <label><span>INVESTMENT AMOUNT</span><span id="sl3-val">$10,000</span></label>
+            <input type="range" min="2500" max="200000" value="10000" step="500" id="sl3" oninput="calcROI('sl3',3,'r3')">
+          </div>
+          <div class="roi-row"><span class="lbl">Investment:</span><span class="val" id="r3-inv">$10,000.00</span></div>
+          <div class="roi-row"><span class="lbl">Plan Return (400%):</span><span class="val" id="r3-ret">$40,000.00</span></div>
+          <div class="roi-row"><span class="lbl">Net Profit:</span><span class="val" style="color:#4A9FD4" id="r3-net">$20,000.00</span></div>
+          <div class="roi-row"><span class="lbl">Term:</span><span class="val">180 Days</span></div>
+          <div class="roi-result">
+            <div class="profit" style="color:#4A9FD4" id="r3">$30,000.00</div>
+            <div class="profit-label">TOTAL PAYOUT AT MATURITY</div>
+          </div>
+          <button class="invest-btn btn-blue" style="margin-top:1.5rem" onclick="openInvestmentModal('mars-colony')">INVEST NOW</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Accepted Crypto -->
+<section class="crypto-section">
+  <div class="crypto-title">ACCEPTED CURRENCIES</div>
+  <div class="crypto-sub">DEPOSIT VIA ANY OF THESE NETWORKS</div>
+  <div class="crypto-grid">
+    <div class="crypto-card"><i class="fab fa-bitcoin" style="color:#F7931A"></i><h4>BITCOIN</h4><p>BTC Network</p></div>
+    <div class="crypto-card"><i class="fab fa-ethereum" style="color:#627EEA"></i><h4>ETHEREUM</h4><p>ETH Network</p></div>
+    <div class="crypto-card"><i class="fas fa-dollar-sign" style="color:#26A17B"></i><h4>USDT</h4><p>Ethereum (ERC-20) Network</p></div>
+  </div>
+</section>
+
+<!-- Investment Modal -->
+<div class="modal-overlay hidden" id="investmentModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeInvestmentModal()"><i class="fas fa-times"></i></button>
+    <h2>SELECT INVESTMENT AMOUNT</h2>
+    <p class="sub">You will receive your returns on maturity date</p>
+    <div id="packageInfo" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);padding:16px;margin:1.5rem 0;border-radius:4px;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="color:#666;font-size:0.8rem">PACKAGE</span><span id="packageNameDisplay" style="font-weight:700"></span></div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="color:#666;font-size:0.8rem">MINIMUM</span><span id="packageMinDisplay" style="font-weight:700"></span></div>
+      <div style="display:flex;justify-content:space-between;"><span style="color:#666;font-size:0.8rem">RETURN RATE</span><span id="packageReturnDisplay" style="font-weight:700;color:var(--red)"></span></div>
+    </div>
+    <div class="form-group">
+      <label>INVESTMENT AMOUNT (USD)</label>
+      <input type="number" id="investmentAmount" placeholder="Enter amount..." step="10">
+    </div>
+    <div style="background:rgba(227,25,55,0.1);border:1px solid rgba(227,25,55,0.2);padding:16px;margin:1.5rem 0;border-radius:4px;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="color:#888">You will receive:</span><span id="returnAmount" style="font-weight:700;color:#22c55e">$0</span></div>
+      <div style="display:flex;justify-content:space-between;"><span style="color:#888">Maturity date:</span><span id="maturityDate" style="font-weight:700">—</span></div>
+    </div>
+    <button class="invest-btn btn-red" style="width:100%;margin-top:1rem" onclick="proceedToPayment()">
+      PROCEED TO PAYMENT
+    </button>
+    <p style="text-align:center;color:#555;font-size:0.75rem;margin-top:1rem">You must be logged in. <a href="login.html" style="color:var(--red);text-decoration:none">Login / Register</a></p>
+  </div>
+</div>
+
+<!-- Payment Modal with Crypto Details -->
+<div class="modal-overlay hidden" id="paymentModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closePaymentModal()"><i class="fas fa-times"></i></button>
+    <h2>PAYMENT DETAILS</h2>
+    <p class="sub">Send your deposit to confirm investment</p>
+    
+    <div style="margin:1.5rem 0;">
+      <label style="font-size:0.75rem;letter-spacing:2px;color:#666;font-family:'Rajdhani',sans-serif;display:block;margin-bottom:0.75rem">SELECT PAYMENT METHOD</label>
+      <select id="walletType" style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);color:#fff;padding:10px;font-size:0.9rem;outline:none">
+        <option value="usdt">USDT (Tether) ETH Network - Recommended</option>
+        <option value="bitcoin">Bitcoin (BTC)</option>
+        <option value="ethereum">Ethereum (ETH)</option>
+      </select>
+    </div>
+
+    <div style="background:rgba(0,82,136,0.1);border:1px solid rgba(0,82,136,0.2);padding:16px;margin:1.5rem 0;border-radius:4px;">
+      <div style="font-size:0.75rem;letter-spacing:2px;color:#666;font-family:'Rajdhani',sans-serif;margin-bottom:0.75rem;font-weight:600">WALLET ADDRESS</div>
+      <div id="walletAddress" style="background:rgba(0,0,0,0.3);padding:12px;border-radius:2px;word-break:break-all;font-size:0.8rem;font-family:monospace;color:#4A9FD4;cursor:pointer" onclick="copyToClipboard(this.textContent)">
+        0x9876543210fedcba9876543210fedcba98765432
+      </div>
+      <div style="font-size:0.7rem;color:#666;margin-top:6px">💡 Click to copy</div>
+    </div>
+
+    <div style="margin:1.5rem 0;">
+      <label style="font-size:0.75rem;letter-spacing:2px;color:#666;font-family:'Rajdhani',sans-serif;display:block;margin-bottom:0.75rem">SUGGESTED AMOUNT TO SEND</label>
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);padding:12px;font-size:0.9rem;font-weight:700" id="suggestedAmount">
+        —
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>TRANSACTION ID</label>
+      <input type="text" id="transactionId" placeholder="Enter TxID after sending...">
+    </div>
+
+    <button class="invest-btn btn-red" style="width:100%;margin-top:1rem" onclick="completePayment()">
+      CONFIRM & SUBMIT
+    </button>
+    <p style="text-align:center;color:#555;font-size:0.7rem;margin-top:1rem;line-height:1.5">After sending funds and entering TxID, our admin will verify and approve within 24 hours. Your investment will become active upon approval.</p>
+  </div>
+</div>
+
+<script src="../app.js"></script>
+<script>
+// Helper functions for packages page
+function updatePackageInfo(packageId) {
+  const pkg = UIManager.getPackage(packageId);
+  if (!pkg) return;
+  
+  document.getElementById('packageNameDisplay').textContent = pkg.name;
+  document.getElementById('packageMinDisplay').textContent = UIManager.formatCurrency(pkg.minInvestment);
+  document.getElementById('packageReturnDisplay').textContent = pkg.returnPercent + '%';
+}
+
+// Update investment overview when amount changes
+function updateInvestmentOverview() {
+  const amountInput = document.getElementById('investmentAmount');
+  const returnAmount = document.getElementById('returnAmount');
+  const maturityDate = document.getElementById('maturityDate');
+  
+  if (!amountInput || !returnAmount || !maturityDate) return;
+  
+  const amount = parseFloat(amountInput.value) || 0;
+  const selectedPackage = sessionStorage.getItem('selectedPackage');
+  
+  if (!selectedPackage || amount <= 0) {
+    returnAmount.textContent = '$0';
+    maturityDate.textContent = '—';
+    return;
+  }
+  
+  const pkg = UIManager.getPackage(selectedPackage);
+  if (!pkg) {
+    returnAmount.textContent = '$0';
+    maturityDate.textContent = '—';
+    return;
+  }
+  
+  const returns = UIManager.calculateReturns(amount, pkg.returnPercent);
+  const date = InvestmentManager.calculateMaturityDate(pkg.duration);
+  
+  returnAmount.textContent = UIManager.formatCurrency(returns);
+  maturityDate.textContent = UIManager.formatDate(date);
+}
+
+// Add listener for amount input (delayed to ensure DOM ready)
+document.addEventListener('DOMContentLoaded', function() {
+  const amountInput = document.getElementById('investmentAmount');
+  if (amountInput) {
+    amountInput.addEventListener('input', updateInvestmentOverview);
+  }
+});
+
+// Function to initialize wallet display (called from app.js when payment modal opens)
+function initializeWalletDisplay() {
+  console.log('initializeWalletDisplay called');
+  console.log('CRYPTO_WALLETS:', typeof CRYPTO_WALLETS !== 'undefined' ? CRYPTO_WALLETS : 'NOT DEFINED');
+  
+  const walletTypeSelect = document.getElementById('walletType');
+  if (!walletTypeSelect) {
+    console.log('walletType select not found');
+    return;
+  }
+  
+  const walletType = walletTypeSelect.value || 'usdt';
+  const amountInput = document.getElementById('investmentAmount');
+  const amount = amountInput ? amountInput.value : '0';
+  
+  // Fallback wallet addresses if CRYPTO_WALLETS not available
+  const wallets = {
+    usdt: '0x9647750C8690054e5e5b445B3c0D91CdD2B84C06',
+    bitcoin: 'bc1q67lt894r3pcrkad9pylhq7skqxtgkx5lnusm5n',
+    ethereum: '0x9647750C8690054e5e5b445B3c0D91CdD2B84C06'
+  };
+  
+  let walletAddr = wallets.usdt;
+  let displayCurrency = 'USDT';
+  
+  // Try to use CRYPTO_WALLETS, with proper key handling for usdt
+  if (typeof CRYPTO_WALLETS !== 'undefined') {
+    if (walletType === 'bitcoin') {
+      walletAddr = CRYPTO_WALLETS.bitcoin || wallets.bitcoin;
+      displayCurrency = 'BTC';
+    } else if (walletType === 'ethereum') {
+      walletAddr = CRYPTO_WALLETS.ethereum || wallets.ethereum;
+      displayCurrency = 'ETH';
+    } else {
+      // For USDT, try 'usdt' first, then 'usdt_eth' (for backwards compatibility)
+      walletAddr = CRYPTO_WALLETS.usdt || CRYPTO_WALLETS.usdt_eth || wallets.usdt;
+      displayCurrency = 'USDT';
+    }
+  } else {
+    // Use fallback if CRYPTO_WALLETS not defined
+    if (walletType === 'bitcoin') {
+      walletAddr = wallets.bitcoin;
+      displayCurrency = 'BTC';
+    } else if (walletType === 'ethereum') {
+      walletAddr = wallets.ethereum;
+      displayCurrency = 'ETH';
+    }
+  }
+  
+  console.log('Selected wallet type:', walletType);
+  console.log('Wallet address to display:', walletAddr);
+  
+  const walletAddressEl = document.getElementById('walletAddress');
+  const suggestedAmountEl = document.getElementById('suggestedAmount');
+  
+  if (walletAddressEl) {
+    walletAddressEl.textContent = walletAddr;
+    console.log('Updated walletAddress element');
+  } else {
+    console.log('walletAddress element not found');
+  }
+  
+  if (suggestedAmountEl) {
+    suggestedAmountEl.textContent = '$' + amount + ' ' + displayCurrency;
+    console.log('Updated suggestedAmount element');
+  } else {
+    console.log('suggestedAmount element not found');
+  }
+}
+
+// Initialize USDT payment on page load
+function initializeUSDTPayment() {
+  console.log('initializeUSDTPayment called');
+  initializeWalletDisplay();
+}
+
+// Handle payment method changes
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('DOMContentLoaded event fired');
+  const walletTypeSelect = document.getElementById('walletType');
+  const amountInput = document.getElementById('investmentAmount');
+  
+  console.log('walletTypeSelect:', walletTypeSelect ? 'found' : 'not found');
+  console.log('amountInput:', amountInput ? 'found' : 'not found');
+  
+  // Update wallet when method changes
+  if (walletTypeSelect) {
+    walletTypeSelect.addEventListener('change', function() {
+      console.log('Wallet type changed to:', this.value);
+      initializeWalletDisplay();
+    });
+  }
+  
+  // Update suggested amount when input changes
+  if (amountInput) {
+    amountInput.addEventListener('input', function() {
+      const amount = this.value || '0';
+      const walletType = walletTypeSelect.value;
+      let displayCurrency = 'USDT';
+      
+      if (walletType === 'bitcoin') {
+        displayCurrency = 'BTC';
+      } else if (walletType === 'ethereum') {
+        displayCurrency = 'ETH';
+      }
+      
+      const suggestedAmountEl = document.getElementById('suggestedAmount');
+      if (suggestedAmountEl) {
+        suggestedAmountEl.textContent = '$' + amount + ' ' + displayCurrency;
+      }
+    });
+  }
+});
+
+function copyToClipboard(text) {
+  navigator.clipboard.writeText(text).then(() => {
+    alert('Address copied to clipboard!');
+  });
+}
+
+function closePaymentModal() {
+  UIManager.hideModal('paymentModal');
+  document.getElementById('transactionId').value = '';
+  document.getElementById('investmentAmount').value = '';
+}
+
+// Override openInvestmentModal to update package info and overview
+if (typeof window.openInvestmentModal === 'function') {
+  const originalOpen = window.openInvestmentModal;
+  window.openInvestmentModal = function(packageId) {
+    updatePackageInfo(packageId);
+    originalOpen(packageId);
+    // Trigger overview update after modal opens
+    setTimeout(updateInvestmentOverview, 50);
+  };
+} else {
+  // fallback: define a simple guarded opener
+  window.openInvestmentModal = function(packageId) {
+    updatePackageInfo(packageId);
+    // redirect to login if not logged in, otherwise open modal
+    if (!AuthManager.isLoggedIn()) {
+      window.location.href = '/pages/login.html?from=packages';
+      return;
+    }
+    sessionStorage.setItem('selectedPackage', packageId);
+    UIManager.showModal('investmentModal');
+    // Trigger overview update after modal opens
+    setTimeout(updateInvestmentOverview, 50);
+  };
+}
+
+// Initialize wallet display on load
+window.addEventListener('load', () => {
+  console.log('Window load event fired');
+  initializeUSDTPayment();
+});
+</script>
+</body>
+</html>

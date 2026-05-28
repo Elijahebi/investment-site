@@ -1,0 +1,19 @@
+{
+  "name": "teslainvest",
+  "version": "1.0.0",
+  "description": "TeslaInvest Platform - Investment Dashboard",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "cd backend && node server.js",
+    "dev": "cd backend && npm run dev",
+    "build": "npm install && cd backend && npm install"
+  },
+  "keywords": [
+    "investment",
+    "crypto",
+    "dashboard",
+    "portfolio"
+  ],
+  "author": "TeslaInvest",
+  "license": "MIT"
+}

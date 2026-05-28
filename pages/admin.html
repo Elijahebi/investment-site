@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel — TeslaInvest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root{--red:#E31937;--blue:#005288;--bg:#080808;--surface:#0D0D0D;--glass:rgba(255,255,255,0.04);--border:rgba(255,255,255,0.08);--text:#E8E8E8;--muted:#666;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;overflow-x:hidden;}
+  h1,h2,h3,h4,.logo{font-family:'Rajdhani',sans-serif;}
+  body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(255,255,255,0.015) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.015) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0;}
+
+  /* Login screen */
+  .admin-login{position:fixed;inset:0;background:var(--bg);z-index:999;display:flex;align-items:center;justify-content:center;}
+  .admin-login.hidden{display:none;}
+  .login-box{background:#0D0D0D;border:1px solid rgba(227,25,55,0.2);padding:50px;width:100%;max-width:420px;text-align:center;}
+  .login-box .shield{font-size:3rem;margin-bottom:1.5rem;}
+  .login-box h2{font-size:1.5rem;font-weight:700;letter-spacing:2px;margin-bottom:0.25rem;}
+  .login-box p{color:#555;font-size:0.8rem;margin-bottom:2rem;letter-spacing:1px;}
+  .form-group{margin-bottom:1rem;text-align:left;}
+  .form-group label{display:block;font-size:0.65rem;letter-spacing:2px;color:#666;font-family:'Rajdhani',sans-serif;font-weight:600;margin-bottom:0.5rem;}
+  .form-group input{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--border);color:#fff;padding:12px 14px;font-size:0.9rem;outline:none;transition:border-color 0.2s;}
+  .form-group input:focus{border-color:rgba(227,25,55,0.4);}
+  .login-btn{width:100%;padding:13px;background:var(--red);color:#fff;border:none;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:0.95rem;letter-spacing:3px;cursor:pointer;clip-path:polygon(10px 0%,100% 0%,calc(100% - 10px) 100%,0% 100%);transition:all 0.3s;}
+  .login-btn:hover{box-shadow:0 0 30px rgba(227,25,55,0.3);}
+  .login-hint{color:#444;font-size:0.75rem;margin-top:1rem;}
+
+  /* Sidebar */
+  .sidebar{position:fixed;top:0;left:0;width:240px;height:100vh;background:#0A0A0A;border-right:1px solid var(--border);z-index:50;display:flex;flex-direction:column;}
+  .sidebar-logo{padding:22px 24px;border-bottom:1px solid var(--border);}
+  .sidebar-logo .logo{font-size:1.2rem;font-weight:700;letter-spacing:2px;color:#fff;text-decoration:none;display:block;}
+  .sidebar-logo .logo span{color:var(--red);}
+  .sidebar-logo .admin-badge{display:inline-block;background:rgba(227,25,55,0.1);border:1px solid rgba(227,25,55,0.3);color:var(--red);font-size:0.6rem;letter-spacing:2px;padding:2px 8px;font-family:'Rajdhani',sans-serif;font-weight:700;margin-top:6px;}
+  .sidebar-nav{flex:1;padding:16px 0;overflow-y:auto;}
+  .sidebar-section{font-size:0.6rem;letter-spacing:2px;color:#444;font-family:'Rajdhani',sans-serif;font-weight:600;padding:0 24px;margin-bottom:6px;margin-top:14px;}
+  .sidebar-nav a{display:flex;align-items:center;gap:12px;padding:10px 24px;color:#555;text-decoration:none;font-size:0.8rem;transition:all 0.2s;border-left:2px solid transparent;cursor:pointer;}
+  .sidebar-nav a:hover,.sidebar-nav a.active{color:#fff;background:rgba(255,255,255,0.03);border-left-color:var(--red);}
+  .sidebar-nav a i{width:16px;text-align:center;font-size:0.85rem;}
+  .sidebar-bottom{border-top:1px solid var(--border);padding:16px 24px;}
+
+  /* Main */
+  .main{margin-left:240px;min-height:100vh;}
+  .topbar{background:rgba(10,10,10,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0 32px;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40;}
+  .topbar h1{font-size:1rem;font-weight:700;letter-spacing:3px;}
+  .topbar-right{display:flex;align-items:center;gap:1rem;}
+  .admin-tag{background:rgba(227,25,55,0.1);border:1px solid rgba(227,25,55,0.3);color:var(--red);font-size:0.65rem;padding:4px 12px;font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:2px;}
+  .content{padding:28px 32px;}
+
+  /* Stat cards */
+  .stat-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem;}
+  .stat-card{background:var(--surface);border:1px solid var(--border);padding:22px;}
+  .stat-card .lbl{font-size:0.6rem;letter-spacing:2px;color:#555;font-family:'Rajdhani',sans-serif;font-weight:600;margin-bottom:0.5rem;}
+  .stat-card .val{font-family:'Rajdhani',sans-serif;font-size:1.8rem;font-weight:700;}
+  .stat-card .sub{font-size:0.7rem;color:#555;margin-top:4px;}
+
+  /* Panels */
+  .panel{background:var(--surface);border:1px solid var(--border);margin-bottom:2rem;}
+  .panel-header{padding:18px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+  .panel-header h2{font-size:0.95rem;font-weight:700;letter-spacing:2px;}
+  .panel-badge{font-size:0.65rem;background:rgba(227,25,55,0.1);border:1px solid rgba(227,25,55,0.3);color:var(--red);padding:3px 10px;font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:1px;}
+  .table-wrap{overflow-x:auto;}
+  table{width:100%;border-collapse:collapse;min-width:700px;}
+  thead{background:rgba(255,255,255,0.02);}
+  th{padding:11px 16px;text-align:left;font-size:0.6rem;letter-spacing:2px;color:#444;font-family:'Rajdhani',sans-serif;font-weight:600;white-space:nowrap;border-bottom:1px solid var(--border);}
+  td{padding:13px 16px;font-size:0.82rem;border-bottom:1px solid rgba(255,255,255,0.03);}
+  tr:last-child td{border-bottom:none;}
+  tr:hover td{background:rgba(255,255,255,0.015);}
+
+  .badge{display:inline-block;padding:2px 10px;font-size:0.6rem;letter-spacing:1px;font-family:'Rajdhani',sans-serif;font-weight:700;}
+  .badge-pending{background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.3);color:#fbbf24;}
+  .badge-approved{background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);color:#22c55e;}
+  .badge-rejected{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#ef4444;}
+  .badge-active{background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);color:#22c55e;}
+
+  .action-btn{padding:5px 14px;border:none;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:0.7rem;letter-spacing:1px;cursor:pointer;clip-path:polygon(4px 0%,100% 0%,calc(100% - 4px) 100%,0% 100%);transition:opacity 0.2s;}
+  .action-btn:hover{opacity:0.8;}
+  .btn-approve{background:#22c55e;color:#000;}
+  .btn-reject{background:#ef4444;color:#fff;}
+  .btn-view{background:rgba(255,255,255,0.1);color:#fff;border:1px solid var(--border);}
+
+  /* Tab nav */
+  .tab-nav{display:flex;gap:0;border-bottom:1px solid var(--border);padding:0 24px;}
+  .tab-btn{padding:14px 20px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:0.8rem;letter-spacing:2px;color:#555;cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;transition:all 0.2s;margin-bottom:-1px;}
+  .tab-btn.active{color:#fff;border-bottom-color:var(--red);}
+
+  /* Plan manager */
+  .plans-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;padding:24px;}
+  .plan-card{background:rgba(255,255,255,0.02);border:1px solid var(--border);padding:24px;}
+  .plan-card h3{font-size:1rem;font-weight:700;letter-spacing:2px;margin-bottom:1rem;}
+  .plan-field{margin-bottom:0.75rem;}
+  .plan-field label{display:block;font-size:0.6rem;letter-spacing:2px;color:#555;font-family:'Rajdhani',sans-serif;font-weight:600;margin-bottom:0.4rem;}
+  .plan-field input{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--border);color:#fff;padding:9px 12px;font-size:0.85rem;outline:none;}
+  .plan-field input:focus{border-color:rgba(227,25,55,0.4);}
+  .plan-actions{display:flex;gap:0.5rem;margin-top:1rem;}
+  .save-btn{flex:1;padding:9px;background:var(--red);color:#fff;border:none;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:0.75rem;letter-spacing:2px;cursor:pointer;}
+  .disable-btn{padding:9px 16px;background:transparent;color:#555;border:1px solid var(--border);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:0.75rem;letter-spacing:1px;cursor:pointer;transition:all 0.2s;}
+  .disable-btn:hover{border-color:#fff;color:#fff;}
+
+  .status-select{background:rgba(255,255,255,0.04);border:1px solid var(--border);color:#fff;padding:5px 10px;font-size:0.75rem;outline:none;cursor:pointer;}
+
+  .thumbnail{width:40px;height:40px;background:rgba(255,255,255,0.05);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:#555;font-size:0.7rem;cursor:pointer;overflow:hidden;}
+  .thumbnail:hover{border-color:rgba(255,255,255,0.2);}
+
+  .spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.6s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+  .toast{position:fixed;bottom:24px;right:24px;background:#1a1a1a;border:1px solid var(--border);padding:14px 20px;font-size:0.85rem;z-index:999;animation:fadeUp 0.3s ease;display:none;}
+
+  @media(max-width:1024px){
+    .stat-cards{grid-template-columns:1fr 1fr;}
+    .topbar{padding:0 20px;}
+    .content{padding:20px}
+    .plans-grid{grid-template-columns:1fr}
+  }
+
+  @media(max-width:768px){
+    .admin-login{padding:20px}
+    .login-box{padding:30px 20px;max-width:100%}
+    .sidebar{display:none;width:100%;height:auto;position:relative;border-right:none;border-bottom:1px solid var(--border);z-index:51}
+    .sidebar.open{display:flex}
+    .sidebar-nav{padding:10px 0;max-height:60vh;overflow-y:auto}
+    .main{margin-left:0}
+    .topbar{padding:0 16px;height:52px}
+    .topbar h1{font-size:0.9rem;letter-spacing:2px}
+    .topbar-right{gap:0.75rem}
+    .admin-tag{font-size:0.6rem;padding:3px 10px}
+    .content{padding:16px 12px}
+    .stat-cards{grid-template-columns:1fr 1fr;gap:0.75rem}
+    .stat-card{padding:16px}
+    .stat-card .lbl{font-size:0.55rem}
+    .stat-card .val{font-size:1.4rem}
+    .panel{margin-bottom:1.5rem}
+    .panel-header{padding:14px 16px}
+    .panel-header h2{font-size:0.85rem;letter-spacing:1px}
+    .panel-badge{font-size:0.6rem;padding:2px 8px}
+    table{min-width:100%;font-size:0.75rem}
+    th,td{padding:8px 10px;font-size:0.75rem}
+    .action-btn{padding:4px 10px;font-size:0.65rem}
+    .tab-nav{padding:0 16px}
+    .tab-btn{padding:12px 16px;font-size:0.75rem;letter-spacing:1px}
+    .plans-grid{padding:16px;grid-template-columns:1fr}
+    .plan-card{padding:16px}
+    .plan-card h3{font-size:0.9rem;margin-bottom:0.75rem}
+    .plan-field input{padding:8px 10px;font-size:0.8rem}
+    .save-btn{padding:8px;font-size:0.7rem}
+    .thumbnail{width:36px;height:36px;font-size:0.65rem}
+  }
+
+  @media(max-width:480px){
+    .admin-login{padding:16px}
+    .login-box{padding:24px 16px}
+    .login-box .shield{font-size:2.5rem}
+    .login-box h2{font-size:1.2rem}
+    .login-box p{font-size:0.7rem}
+    .form-group{margin-bottom:0.75rem}
+    .form-group label{font-size:0.6rem}
+    .form-group input{padding:10px 11px;font-size:0.8rem}
+    .login-btn{padding:11px;font-size:0.8rem;letter-spacing:2px}
+    .login-hint{font-size:0.7rem;margin-top:0.75rem}
+    .sidebar{width:100%;max-height:100vh;overflow-y:auto}
+    .sidebar-logo{padding:16px 16px}
+    .sidebar-logo .logo{font-size:1rem;letter-spacing:1px}
+    .sidebar-nav{padding:12px 0}
+    .sidebar-section{font-size:0.55rem;padding:0 16px;margin-bottom:4px;margin-top:10px}
+    .sidebar-nav a{padding:8px 16px;font-size:0.75rem;gap:10px}
+    .main{margin-left:0}
+    .topbar{padding:0 12px;height:48px;flex-wrap:wrap}
+    .topbar h1{font-size:0.8rem;letter-spacing:1px}
+    .topbar-right{gap:0.5rem;font-size:0.7rem}
+    .admin-tag{font-size:0.55rem;padding:2px 7px}
+    .content{padding:12px 10px}
+    .stat-cards{grid-template-columns:1fr;gap:0.5rem}
+    .stat-card{padding:12px}
+    .stat-card .lbl{font-size:0.5rem}
+    .stat-card .val{font-size:1.2rem}
+    .stat-card .sub{font-size:0.65rem}
+    .panel{margin-bottom:1rem}
+    .panel-header{padding:12px 14px}
+    .panel-header h2{font-size:0.8rem}
+    .panel-badge{font-size:0.55rem;padding:2px 6px}
+    .table-wrap{overflow-x:auto}
+    table{min-width:600px;font-size:0.7rem}
+    th{padding:6px 8px;font-size:0.55rem}
+    td{padding:6px 8px;font-size:0.7rem}
+    .badge{padding:1px 6px;font-size:0.55rem}
+    .action-btn{padding:3px 8px;font-size:0.6rem;letter-spacing:0.5px}
+    .tab-nav{padding:0 12px;gap:0}
+    .tab-btn{padding:10px 12px;font-size:0.7rem;letter-spacing:0.5px}
+    .plans-grid{padding:12px;grid-template-columns:1fr}
+    .plan-card{padding:12px}
+    .plan-card h3{font-size:0.85rem;margin-bottom:0.5rem}
+    .plan-field{margin-bottom:0.5rem}
+    .plan-field label{font-size:0.55rem;margin-bottom:0.3rem}
+    .plan-field input{padding:7px 9px;font-size:0.75rem}
+    .plan-actions{gap:0.3rem;margin-top:0.75rem}
+    .save-btn{padding:7px;font-size:0.65rem}
+    .disable-btn{padding:7px 12px;font-size:0.65rem}
+    .status-select{padding:4px 8px;font-size:0.7rem}
+    .thumbnail{width:32px;height:32px;font-size:0.6rem}
+    .toast{bottom:16px;right:16px;padding:12px 16px;font-size:0.75rem}
+    body::before{background-size:40px 40px}
+  }
+
+</style>
+</head>
+<body>
+
+<!-- Admin Login Gate -->
+<div class="admin-login" id="adminLogin">
+  <div class="login-box">
+    <div class="shield">🛡️</div>
+    <h2>ADMIN ACCESS</h2>
+    <p>RESTRICTED — AUTHORIZED PERSONNEL ONLY</p>
+    <div class="form-group">
+      <label>ADMIN EMAIL</label>
+      <input type="email" id="adminEmail" placeholder="admin@tesla.com">
+    </div>
+    <div class="form-group">
+      <label>ADMIN PASSWORD</label>
+      <input type="password" id="adminPwd" placeholder="••••••••" onkeydown="if(event.key==='Enter')doAdminLogin()">
+    </div>
+    <button class="login-btn" onclick="doAdminLogin()">AUTHENTICATE</button>
+    <div class="login-hint">Enter admin credentials</div>
+  </div>
+</div>
+
+<!-- Sidebar -->
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <a href="index.html" class="logo">TESLA<span>INVEST</span></a>
+    <div class="admin-badge">ADMIN PANEL</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="sidebar-section">OVERVIEW</div>
+    <a class="active" onclick="showSection('overview')"><i class="fas fa-th-large"></i> Overview</a>
+    <div class="sidebar-section">MANAGEMENT</div>
+    <a onclick="showSection('receipts')"><i class="fas fa-receipt"></i> Receipt Approvals</a>
+    <a onclick="showSection('users')"><i class="fas fa-users"></i> All Users</a>
+    <a onclick="showSection('plans')"><i class="fas fa-rocket"></i> Investment Plans</a>
+    <a onclick="showSection('withdrawals')"><i class="fas fa-money-bill-transfer"></i> Withdrawals</a>
+    <div class="sidebar-section">SYSTEM</div>
+    <a href="dashboard.html"><i class="fas fa-user"></i> User Dashboard</a>
+    <a href="index.html"><i class="fas fa-globe"></i> Homepage</a>
+  </nav>
+  <div class="sidebar-bottom">
+    <div style="font-size:0.7rem;color:#555;font-family:'Rajdhani',sans-serif;letter-spacing:1px;">LOGGED IN AS ADMIN</div>
+    <button onclick="adminLogout()" style="color:#555;background:none;border:none;cursor:pointer;font-size:0.8rem;margin-top:8px;display:flex;align-items:center;gap:8px;transition:color 0.2s;" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='#555'"><i class="fas fa-right-from-bracket"></i> Sign out</button>
+  </div>
+</div>
+
+<!-- Main -->
+<div class="main">
+  <div class="topbar">
+    <h1 id="topbarTitle">ADMIN OVERVIEW</h1>
+    <div class="topbar-right">
+      <div class="admin-tag">🔒 ADMIN MODE</div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- Overview Section -->
+    <div id="section-overview">
+      <div class="stat-cards">
+        <div class="stat-card">
+          <div class="lbl">TOTAL USERS</div>
+          <div class="val" id="statUsers">3</div>
+          <div class="sub">Registered accounts</div>
+        </div>
+        <div class="stat-card">
+          <div class="lbl">PENDING RECEIPTS</div>
+          <div class="val" style="color:#fbbf24" id="statPending">0</div>
+          <div class="sub">Awaiting review</div>
+        </div>
+        <div class="stat-card">
+          <div class="lbl">TOTAL INVESTED</div>
+          <div class="val" style="color:#22c55e" id="statInvested">$0</div>
+          <div class="sub">Platform-wide</div>
+        </div>
+        <div class="stat-card">
+          <div class="lbl">PENDING WITHDRAWALS</div>
+          <div class="val" style="color:var(--red)" id="statWithdrawals">0</div>
+          <div class="sub">Awaiting approval</div>
+        </div>
+      </div>
+
+      <!-- Quick receipts preview -->
+      <div class="panel">
+        <div class="panel-header">
+          <h2>RECENT RECEIPTS</h2>
+          <div class="panel-badge" id="pendingCountBadge">0 PENDING</div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>DATE</th><th>TX ID</th><th>AMOUNT</th><th>SCREENSHOT</th><th>STATUS</th><th>ACTIONS</th></tr></thead>
+            <tbody id="overviewReceiptsTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Receipts Section -->
+    <div id="section-receipts" style="display:none">
+      <div class="panel">
+        <div class="panel-header">
+          <h2>RECEIPT APPROVALS</h2>
+          <div class="panel-badge" id="receiptsCountBadge">0 PENDING</div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>USER</th><th>DATE SUBMITTED</th><th>TX ID</th><th>SCREENSHOT</th><th>AMOUNT</th><th>STATUS</th><th>ACTIONS</th></tr></thead>
+            <tbody id="receiptsTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Users Section -->
+    <div id="section-users" style="display:none">
+      <div class="panel">
+        <div class="panel-header"><h2>ALL USERS</h2></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>NAME</th><th>EMAIL</th><th>TOTAL INVESTED</th><th>ACTIVE BALANCE</th><th>JOINED</th><th>ACTIONS</th></tr></thead>
+            <tbody id="usersTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Plans Section -->
+    <div id="section-plans" style="display:none">
+      <div class="panel">
+        <div class="panel-header"><h2>INVESTMENT PLANS MANAGER</h2></div>
+        <div class="plans-grid" id="plansGrid"></div>
+        <div style="padding:0 24px 24px">
+          <div style="border-top:1px solid var(--border);padding-top:24px;margin-top:0">
+            <div style="font-size:0.85rem;font-weight:700;letter-spacing:2px;margin-bottom:1.5rem;font-family:'Rajdhani',sans-serif">+ ADD NEW PLAN</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem">
+              <div class="plan-field"><label>PLAN NAME</label><input id="newName" placeholder="e.g. Hyperloop Plan"></div>
+              <div class="plan-field"><label>MINIMUM ($)</label><input type="number" id="newMin" placeholder="100"></div>
+              <div class="plan-field"><label>RETURN RATE (%)</label><input type="number" id="newRate" placeholder="150"></div>
+              <div class="plan-field"><label>TERM (DAYS)</label><input type="number" id="newTerm" placeholder="60"></div>
+            </div>
+            <button class="save-btn" style="margin-top:1rem;padding:11px 24px;width:auto" onclick="addPlan()">ADD PLAN</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Withdrawals Section -->
+    <div id="section-withdrawals" style="display:none">
+      <div class="panel">
+        <div class="panel-header"><h2>WITHDRAWAL REQUESTS</h2></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>DATE</th><th>USER</th><th>AMOUNT</th><th>WALLET</th><th>STATUS</th><th>ACTIONS</th></tr></thead>
+            <tbody id="withdrawalsTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const fmt = n => '$'+Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtDate = d => new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'});
+const fmtDateShort = d => new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+
+// Auth
+async function doAdminLogin(){
+  const email = document.getElementById('adminEmail').value.trim();
+  const pwd = document.getElementById('adminPwd').value;
+  
+  if (!email || !pwd) {
+    alert('Please enter both email and password');
+    return;
+  }
+  
+  try {
+    // Call backend API for admin login
+    const response = await fetch('/api/auth/admin-login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password: pwd })
+    });
+    
+    const data = await response.json();
+    
+    if (data.success && data.token) {
+      // Store token and user info
+      localStorage.setItem('authToken', data.token);
+      localStorage.setItem('currentUser', JSON.stringify(data.user));
+      localStorage.setItem('currentAdmin', email);
+      
+      // Hide login, show panel
+      document.getElementById('adminLogin').classList.add('hidden');
+      renderAll();
+    } else {
+      alert(data.error || 'Invalid admin credentials');
+    }
+  } catch (err) {
+    console.error('Admin login error:', err);
+    alert('Connection error. Make sure backend is running on localhost:8000');
+  }
+}
+
+// Admin should fetch all data from MongoDB backend
+if(adminToken && adminEmail){
+  document.getElementById('adminLogin').classList.add('hidden');
+  renderAll();
+} else {
+  // Not logged in, show login form
+}
+
+// No localStorage seeding - all data from MongoDB
+
+function showSection(name){
+  document.querySelectorAll('[id^="section-"]').forEach(s=>s.style.display='none');
+  document.getElementById('section-'+name).style.display='block';
+  document.querySelectorAll('.sidebar-nav a').forEach(a=>a.classList.remove('active'));
+  const titles={overview:'ADMIN OVERVIEW',receipts:'RECEIPT APPROVALS',users:'ALL USERS',plans:'PLANS MANAGER',withdrawals:'WITHDRAWALS'};
+  document.getElementById('topbarTitle').textContent = titles[name]||name.toUpperCase();
+}
+
+function showToast(msg,color='#22c55e'){
+  const t=document.getElementById('toast');
+  t.style.display='block';
+  t.style.borderColor=color;
+  t.style.color=color;
+  t.textContent=msg;
+  setTimeout(()=>t.style.display='none',3000);
+}
+
+function renderAll(){
+  renderOverview();
+  renderReceipts();
+  renderUsers();
+  renderPlans();
+  renderWithdrawals();
+}
+
+// Formatted output - already defined above
+// const fmt, fmtDate, fmtDateShort
+
+function renderOverview(){
+  // Fetch from backend
+  const token = localStorage.getItem('authToken');
+  
+  fetch('/api/admin/overview', {
+    headers: { 'Authorization': `Bearer ${token}` }
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) {
+      document.getElementById('statUsers').textContent = data.stats.userCount || 0;
+      document.getElementById('statPending').textContent = data.stats.pendingCount || 0;
+      document.getElementById('statInvested').textContent = '$' + (data.stats.totalInvested || 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    }
+  })
+  .catch(e => console.error('Fetch overview error:', e));
+
+  // Fetch pending deposits/receipts
+  fetch('/api/admin/pending-receipts', {
+    headers: { 'Authorization': `Bearer ${token}` }
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) {
+      const pending = data.receipts ? data.receipts.length : 0;
+      document.getElementById('pendingCountBadge').textContent = pending + ' PENDING';
+      
+      const tbody = document.getElementById('overviewReceiptsTable');
+      if (!data.receipts || !data.receipts.length) {
+        tbody.innerHTML = '<tr><td colspan="6" style="padding:30px;text-align:center;color:#444">No receipts submitted yet.</td></tr>';
+        return;
+      }
+      
+      tbody.innerHTML = data.receipts.slice(-5).reverse().map(r => `
+        <tr>
+          <td style="color:#666;font-size:0.8rem">${fmtDateShort(r.submittedAt)}</td>
+          <td style="font-family:monospace;font-size:0.75rem;color:#888">${(r.transactionId||'—').slice(0,20)}...</td>
+          <td style="color:#22c55e">${fmt(r.amount)}</td>
+          <td><div class="thumbnail" onclick="alert('Receipt Details\\nTX: ${r.transactionId}\\nAmount: ${fmt(r.amount)}\\nWallet: ${r.walletType}\\nDate: ${fmtDate(r.submittedAt)}')"><i class="fas fa-file-invoice"></i></div></td>
+          <td><span class="badge badge-pending">${r.status.toUpperCase()}</span></td>
+          <td>
+            <button class="action-btn btn-approve" onclick="approveReceiptBackend('${r._id}')">APPROVE</button>
+            <button class="action-btn btn-reject" onclick="rejectReceiptBackend('${r._id}')" style="margin-left:4px">REJECT</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+  })
+  .catch(e => console.error('Fetch receipts error:', e));
+}
+
+function receiptRow(r){
+  const statusClass = r.status==='approved'?'badge-approved':r.status==='rejected'?'badge-rejected':'badge-pending';
+  return `<tr>
+    <td style="color:#666;font-size:0.8rem">${fmtDateShort(r.submitted||r.date)}</td>
+    <td style="font-family:monospace;font-size:0.75rem;color:#888">${(r.txid||'—').slice(0,20)}...</td>
+    <td style="color:#22c55e">${fmt(r.amount)}</td>
+    <td><div class="thumbnail" onclick="alert('Screenshot preview\\n\\nTX: ${r.txid}\\nAmount: ${fmt(r.amount)}\\nDate: ${r.date}')"><i class="fas fa-image"></i></div></td>
+    <td><span class="badge ${statusClass}">${r.status.toUpperCase()}</span></td>
+    <td>
+      ${r.status==='pending'?`
+        <button class="action-btn btn-approve" onclick="approveReceipt(${r.id})">APPROVE</button>
+        <button class="action-btn btn-reject" onclick="rejectReceipt(${r.id})" style="margin-left:4px">REJECT</button>
+      `:`<span style="color:#444;font-size:0.75rem">—</span>`}
+    </td>
+  </tr>`;
+}
+
+function renderReceipts(){
+  const token = localStorage.getItem('authToken');
+  const badge = document.getElementById('receiptsCountBadge');
+  const tbody = document.getElementById('receiptsTable');
+  
+  if (!token) {
+    if (tbody) tbody.innerHTML = '<tr><td colspan="7" style="padding:30px;text-align:center;color:#ef4444">Not authenticated. Please login.</td></tr>';
+    if (badge) badge.textContent = '0 PENDING';
+    return;
+  }
+  
+  fetch('/api/admin/pending-receipts', {
+    method: 'GET',
+    headers: { 
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    }
+  })
+  .then(r => {
+    console.log('Receipt fetch status:', r.status);
+    return r.json();
+  })
+  .then(data => {
+    console.log('Receipt data:', data);
+    if (data.success && data.receipts) {
+      const pending = data.receipts.filter(d => d.status === 'pending_review').length;
+      if (badge) badge.textContent = pending + ' PENDING';
+      
+      if (!data.receipts.length) {
+        if (tbody) tbody.innerHTML = '<tr><td colspan="7" style="padding:30px;text-align:center;color:#444">No receipts yet.</td></tr>';
+        return;
+      }
+      
+      if (tbody) {
+        tbody.innerHTML = data.receipts.slice().reverse().map(r => `
+          <tr>
+            <td style="font-size:0.8rem">${r.userName || 'User'}<br><span style="color:#555;font-size:0.7rem">${r.userEmail || 'N/A'}</span></td>
+            <td style="color:#666;font-size:0.8rem">${fmtDate(r.submittedAt)}</td>
+            <td style="font-family:monospace;font-size:0.72rem;color:#888">${(r.transactionId||'—').slice(0,18)}...</td>
+            <td><div class="thumbnail" onclick="alert('Receipt Detail\\nTX: ${r.transactionId}\\nAmount: $${r.amount}\\nWallet: ${r.walletType}\\nUser: ${r.userEmail}')"><i class="fas fa-file-invoice"></i></div></td>
+            <td style="color:#22c55e">$${r.amount}</td>
+            <td>
+              <select class="status-select" onchange="changeReceiptStatusBackend('${r._id}',this.value)">
+                <option value="pending_review" ${r.status==='pending_review'?'selected':''}>Pending</option>
+                <option value="approved" ${r.status==='approved'?'selected':''}>Approved</option>
+                <option value="rejected" ${r.status==='rejected'?'selected':''}>Rejected</option>
+              </select>
+            </td>
+            <td>
+              ${r.status==='pending_review'?`
+                <button class="action-btn btn-approve" onclick="approveReceiptBackend('${r._id}')">APPROVE</button>
+                <button class="action-btn btn-reject" onclick="rejectReceiptBackend('${r._id}')" style="margin-left:4px">REJECT</button>
+              `:`<span style="color:#444;font-size:0.75rem">Done</span>`}
+            </td>
+          </tr>
+        `).join('');
+      }
+    } else {
+      console.error('API error:', data.error);
+      if (tbody) tbody.innerHTML = '<tr><td colspan="7" style="padding:30px;text-align:center;color:#ef4444">Error loading receipts: ' + (data.error || 'Unknown error') + '</td></tr>';
+    }
+  })
+  .catch(e => {
+    console.error('Fetch receipts error:', e);
+    if (tbody) tbody.innerHTML = '<tr><td colspan="7" style="padding:30px;text-align:center;color:#ef4444">Connection error. Make sure backend is running.</td></tr>';
+  });
+}
+
+function changeReceiptStatus(id,status){
+  const receipts = JSON.parse(localStorage.getItem('tiReceipts')||'[]');
+  const r = receipts.find(x=>x.id===id);
+  if(r){ r.status=status; localStorage.setItem('tiReceipts',JSON.stringify(receipts)); }
+  if(status==='approved') creditUser(r);
+  renderAll();
+}
+
+// NEW BACKEND FUNCTIONS
+function approveReceiptBackend(receiptId){
+  const token = localStorage.getItem('authToken');
+  fetch(`/api/admin/approve-receipt/${receiptId}`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({})
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) {
+      showToast('✅ Receipt approved. Investment activated!');
+      renderAll();
+    } else {
+      showToast('❌ Error: ' + (data.error || 'Failed to approve'), '#ef4444');
+    }
+  })
+  .catch(e => {
+    console.error('Error:', e);
+    showToast('❌ Connection error', '#ef4444');
+  });
+}
+
+function rejectReceiptBackend(receiptId){
+  const token = localStorage.getItem('authToken');
+  const notes = prompt('Rejection reason (optional):');
+  
+  fetch(`/api/admin/reject-receipt/${receiptId}`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ notes: notes || '' })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) {
+      showToast('❌ Receipt rejected and investment deleted', '#ef4444');
+      renderAll();
+    } else {
+      showToast('❌ Error: ' + (data.error || 'Failed to reject'), '#ef4444');
+    }
+  })
+  .catch(e => {
+    console.error('Error:', e);
+    showToast('❌ Connection error', '#ef4444');
+  });
+}
+
+function changeReceiptStatusBackend(receiptId, status) {
+  if (status === 'approved') {
+    approveReceiptBackend(receiptId);
+  } else if (status === 'rejected') {
+    rejectReceiptBackend(receiptId);
+  }
+}
+
+// Old localStorage functions removed - use backend API only
+// approveReceipt, rejectReceipt, creditUser are DEPRECATED
+
+function renderUsers(){
+  const token = localStorage.getItem('authToken');
+  
+  fetch('/api/admin/users', {
+    headers: { 'Authorization': `Bearer ${token}` }
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) {
+      const tbody = document.getElementById('usersTable');
+      if (!data.users || !data.users.length) {
+        tbody.innerHTML = '<tr><td colspan="6" style="padding:30px;text-align:center;color:#444">No users.</td></tr>';
+        return;
+      }
+      
+      tbody.innerHTML = data.users.map(u => `
+        <tr>
+          <td><strong>${u.name}</strong></td>
+          <td style="color:#666;font-size:0.82rem">${u.email}</td>
+          <td style="color:#22c55e">${fmt(u.totalInvested || 0)}</td>
+          <td>${fmt(u.activeBalance || 0)}</td>
+          <td style="color:#555;font-size:0.8rem">${fmtDateShort(u.createdAt)}</td>
+          <td>
+            <button class="action-btn btn-view" onclick="alert('User: ${u.name}\\nEmail: ${u.email}\\nActive Balance: ${fmt(u.activeBalance || 0)}\\nTotal Invested: ${fmt(u.totalInvested || 0)}')">VIEW</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+  })
+  .catch(e => console.error('Fetch users error:', e));
+}
+
+function renderPlans(){
+  const plans = JSON.parse(localStorage.getItem('tiPlans')||'[]');
+  const grid = document.getElementById('plansGrid');
+  grid.innerHTML = plans.map(p=>`
+    <div class="plan-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+        <h3>${p.name}</h3>
+        <span class="badge ${p.active?'badge-active':'badge-rejected'}">${p.active?'ACTIVE':'DISABLED'}</span>
+      </div>
+      <div class="plan-field"><label>PLAN NAME</label><input value="${p.name}" id="pname${p.id}"></div>
+      <div class="plan-field"><label>MINIMUM ($)</label><input type="number" value="${p.min}" id="pmin${p.id}"></div>
+      <div class="plan-field"><label>RETURN RATE (%)</label><input type="number" value="${p.rate}" id="prate${p.id}"></div>
+      <div class="plan-field"><label>TERM (DAYS)</label><input type="number" value="${p.term}" id="pterm${p.id}"></div>
+      <div class="plan-actions">
+        <button class="save-btn" onclick="savePlan(${p.id})">SAVE CHANGES</button>
+        <button class="disable-btn" onclick="togglePlan(${p.id})">${p.active?'DISABLE':'ENABLE'}</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function savePlan(id){
+  const plans = JSON.parse(localStorage.getItem('tiPlans')||'[]');
+  const p = plans.find(x=>x.id===id);
+  if(p){
+    p.name=document.getElementById('pname'+id).value;
+    p.min=parseFloat(document.getElementById('pmin'+id).value);
+    p.rate=parseFloat(document.getElementById('prate'+id).value);
+    p.term=parseInt(document.getElementById('pterm'+id).value);
+    localStorage.setItem('tiPlans',JSON.stringify(plans));
+    showToast('✅ Plan saved successfully!');
+    renderPlans();
+  }
+}
+
+function togglePlan(id){
+  const plans=JSON.parse(localStorage.getItem('tiPlans')||'[]');
+  const p=plans.find(x=>x.id===id);
+  if(p){ p.active=!p.active; localStorage.setItem('tiPlans',JSON.stringify(plans)); }
+  showToast(p.active?'✅ Plan enabled':'Plan disabled.');
+  renderPlans();
+}
+
+function addPlan(){
+  const name=document.getElementById('newName').value.trim();
+  const min=parseFloat(document.getElementById('newMin').value);
+  const rate=parseFloat(document.getElementById('newRate').value);
+  const term=parseInt(document.getElementById('newTerm').value);
+  if(!name||!min||!rate||!term){ alert('Please fill all fields.'); return; }
+  const plans=JSON.parse(localStorage.getItem('tiPlans')||'[]');
+  plans.push({id:Date.now(),name,min,rate,term,active:true});
+  localStorage.setItem('tiPlans',JSON.stringify(plans));
+  document.getElementById('newName').value='';
+  document.getElementById('newMin').value='';
+  document.getElementById('newRate').value='';
+  document.getElementById('newTerm').value='';
+  showToast('✅ New plan added!');
+  renderPlans();
+}
+
+function renderWithdrawals(){
+  const withdrawals=JSON.parse(localStorage.getItem('tiWithdrawals')||'[]');
+  const tbody=document.getElementById('withdrawalsTable');
+  // Merge with txs
+  const txs=JSON.parse(localStorage.getItem('tiTransactions')||'[]').filter(t=>t.type==='Withdrawal');
+  const all=[...withdrawals,...txs.map(t=>({id:t.id,date:t.date,userEmail:'demo@demo.com',userName:'Demo Investor',amount:t.amount,wallet:t.txid,status:t.status}))];
+  if(!all.length){ tbody.innerHTML='<tr><td colspan="6" style="padding:30px;text-align:center;color:#444">No withdrawals yet.</td></tr>'; return; }
+  tbody.innerHTML=[...all].reverse().map(w=>{
+    const sc=w.status==='Pending'?'badge-pending':w.status==='Approved'||w.status==='Completed'?'badge-approved':'badge-rejected';
+    return `<tr>
+      <td style="color:#666;font-size:0.8rem">${fmtDateShort(w.date)}</td>
+      <td>${w.userName||'Demo Investor'}<br><span style="color:#555;font-size:0.7rem">${w.userEmail||''}</span></td>
+      <td style="color:var(--red)">${fmt(w.amount)}</td>
+      <td style="font-family:monospace;font-size:0.75rem;color:#666">${(w.wallet||'—').slice(0,20)}</td>
+      <td><span class="badge ${sc}">${w.status}</span></td>
+      <td>
+        ${w.status==='Pending'?`
+          <button class="action-btn btn-approve" onclick="approveWithdrawal(${w.id})">APPROVE</button>
+          <button class="action-btn btn-reject" onclick="rejectWithdrawal(${w.id})" style="margin-left:4px">REJECT</button>
+        `:`<span style="color:#444;font-size:0.75rem">—</span>`}
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// Old withdrawal functions removed - use backend API only
+// approveWithdrawal and rejectWithdrawal are DEPRECATED - kept for backward compatibility
+function approveWithdrawal(id){ showToast('Use backend API for withdrawals'); }
+function rejectWithdrawal(id){ showToast('Use backend API for withdrawals'); }
+
+function adminLogout(){ 
+  localStorage.removeItem('authToken');
+  localStorage.removeItem('currentUser');
+  localStorage.removeItem('currentAdmin');
+  window.location.href='index.html'; 
+}
+
+// Check if already logged in
+if(AuthManager.isAdminLoggedIn()){
+  document.getElementById('adminLogin').classList.add('hidden');
+  renderAll();
+}
+
+// Auto-refresh receipts every 5 seconds when viewing receipts tab
+window.addEventListener('load', function() {
+  setTimeout(() => {
+    // Initial load
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      renderAll();
+    }
+    
+    // Auto-refresh every 5 seconds
+    setInterval(() => {
+      const token = localStorage.getItem('authToken');
+      if (token) {
+        renderReceipts(); // Update receipts tab
+      }
+    }, 5000);
+  }, 500);
+});
+</script>
+<script src="../app.js"></script>
+</body>
+</html>

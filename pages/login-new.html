@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - TeslaInvest</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --red: #E31937;
+      --blue: #005288;
+      --bg: #080808;
+      --surface: #111111;
+      --glass: rgba(255,255,255,0.04);
+      --border: rgba(255,255,255,0.08);
+      --text: #E8E8E8;
+      --muted: #666;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    h1, h2, h3, h4, .logo { font-family: 'Rajdhani', sans-serif; }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .orb-red { position: fixed; width: 500px; height: 500px; background: radial-gradient(circle, rgba(227,25,55,0.12) 0%, transparent 70%); top: -100px; left: -100px; pointer-events: none; z-index: 0; }
+    .orb-blue { position: fixed; width: 600px; height: 600px; background: radial-gradient(circle, rgba(0,82,136,0.1) 0%, transparent 70%); bottom: -200px; right: -200px; pointer-events: none; z-index: 0; }
+
+    .auth-container {
+      position: relative;
+      z-index: 10;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: 100vh;
+      width: 100%;
+    }
+
+    /* Left Panel */
+    .left-panel {
+      background: linear-gradient(135deg, rgba(227,25,55,0.08), rgba(0,82,136,0.08));
+      border-right: 1px solid var(--border);
+      padding: 60px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .left-panel .logo {
+      font-size: 1.6rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: #fff;
+      text-decoration: none;
+    }
+
+    .left-panel .logo span { color: var(--red); }
+
+    .left-tagline { margin-top: auto; }
+    .left-tagline h2 { font-size: 2.5rem; font-weight: 700; line-height: 1.1; margin-bottom: 1rem; }
+    .left-tagline p { color: #555; line-height: 1.7; font-size: 0.9rem; max-width: 320px; }
+
+    .left-stats { display: flex; gap: 2rem; margin-top: 2rem; }
+    .left-stat .num { font-family: 'Rajdhani'; font-size: 1.5rem; font-weight: 700; color: var(--red); }
+    .left-stat .lbl { font-size: 0.7rem; color: #555; letter-spacing: 1px; font-family: 'Rajdhani'; }
+
+    /* Right Panel */
+    .right-panel {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 50px;
+    }
+
+    .auth-box {
+      width: 100%;
+      max-width: 420px;
+    }
+
+    .auth-box h2 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      margin-bottom: 0.5rem;
+    }
+
+    .auth-subtitle {
+      color: #555;
+      font-size: 0.85rem;
+      margin-bottom: 2rem;
+    }
+
+    /* Tabs */
+    .auth-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 2rem;
+    }
+
+    .auth-tab {
+      flex: 1;
+      padding: 12px;
+      text-align: center;
+      font-family: 'Rajdhani';
+      font-weight: 700;
+      font-size: 0.9rem;
+      letter-spacing: 2px;
+      cursor: pointer;
+      color: #555;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+      background: none;
+      border-top: none;
+      border-left: none;
+      border-right: none;
+    }
+
+    .auth-tab.active {
+      color: var(--red);
+      border-bottom-color: var(--red);
+    }
+
+    .auth-form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .auth-label {
+      display: block;
+      font-size: 0.7rem;
+      letter-spacing: 2px;
+      color: #888;
+      font-family: 'Rajdhani';
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .auth-input {
+      width: 100%;
+      padding: 13px 14px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      color: #fff;
+      font-family: 'DM Sans';
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s;
+      border-radius: 4px;
+    }
+
+    .auth-input:focus {
+      border-color: rgba(227,25,55,0.4);
+      background: rgba(227,25,55,0.03);
+    }
+
+    .auth-input::placeholder {
+      color: #666;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 14px;
+      background: var(--red);
+      color: #fff;
+      border: none;
+      font-family: 'Rajdhani';
+      font-weight: 700;
+      font-size: 1rem;
+      letter-spacing: 3px;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: all 0.3s;
+      margin-top: 8px;
+      position: relative;
+    }
+
+    .submit-btn:hover {
+      box-shadow: 0 0 30px rgba(227,25,55,0.4);
+      transform: translateY(-2px);
+    }
+
+    .submit-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .submit-btn.loading {
+      color: transparent;
+    }
+
+    .submit-btn.loading::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    @keyframes spin {
+      to { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+
+    .error-msg {
+      background: rgba(239,68,68,0.1);
+      border: 1px solid rgba(239,68,68,0.3);
+      color: #ef4444;
+      padding: 12px;
+      font-size: 0.85rem;
+      margin-bottom: 1rem;
+      border-radius: 4px;
+      display: none;
+    }
+
+    .error-msg.show {
+      display: block;
+      animation: slideIn 0.3s ease;
+    }
+
+    .success-msg {
+      background: rgba(34,197,94,0.1);
+      border: 1px solid rgba(34,197,94,0.3);
+      color: #22c55e;
+      padding: 12px;
+      font-size: 0.85rem;
+      margin-bottom: 1rem;
+      border-radius: 4px;
+      display: none;
+    }
+
+    .success-msg.show {
+      display: block;
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .auth-footer {
+      text-align: center;
+      margin-top: 1.5rem;
+      font-size: 0.85rem;
+      color: #666;
+    }
+
+    .auth-footer a {
+      color: var(--red);
+      text-decoration: none;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .auth-footer a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 768px) {
+      .auth-container { grid-template-columns: 1fr; }
+      .left-panel { display: none; }
+      .right-panel { padding: 40px 24px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="orb-red"></div>
+  <div class="orb-blue"></div>
+
+  <div class="auth-container">
+    <!-- Left Panel -->
+    <div class="left-panel">
+      <a href="index.html" class="logo">TESLA<span>INVEST</span></a>
+      <div>
+        <div class="left-tagline">
+          <h2>INVEST IN<br>THE <span style="color:var(--red)">FUTURE.</span><br>TODAY.</h2>
+          <p>Access exclusive high-yield plans backed by the world's most disruptive technology ventures.</p>
+          <div class="left-stats">
+            <div class="left-stat"><div class="num">200%</div><div class="lbl">MAX RETURN</div></div>
+            <div class="left-stat"><div class="num">10K+</div><div class="lbl">INVESTORS</div></div>
+            <div class="left-stat"><div class="num">24/7</div><div class="lbl">SUPPORT</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Panel -->
+    <div class="right-panel">
+      <div class="auth-box">
+        <h2>WELCOME BACK</h2>
+        <p class="auth-subtitle">Sign in to access your investment dashboard</p>
+
+        <div id="alertBox"></div>
+
+        <!-- Tabs -->
+        <div class="auth-tabs">
+          <button class="auth-tab active" onclick="switchTab('login')">LOGIN</button>
+          <button class="auth-tab" onclick="switchTab('register')">REGISTER</button>
+        </div>
+
+        <!-- LOGIN TAB -->
+        <div class="tab-content active" id="loginTab">
+          <form onsubmit="handleLogin(event)">
+            <div class="auth-form-group">
+              <label class="auth-label">EMAIL ADDRESS</label>
+              <input type="email" class="auth-input" id="loginEmail" placeholder="your@email.com" required>
+            </div>
+            <div class="auth-form-group">
+              <label class="auth-label">PASSWORD</label>
+              <input type="password" class="auth-input" id="loginPassword" placeholder="••••••••" required>
+            </div>
+            <button type="submit" class="submit-btn" id="loginBtn">SIGN IN</button>
+          </form>
+          <div class="auth-footer">
+            Don't have an account? <a onclick="switchTab('register')">Create one</a>
+          </div>
+        </div>
+
+        <!-- REGISTER TAB -->
+        <div class="tab-content" id="registerTab">
+          <form onsubmit="handleRegister(event)">
+            <div class="auth-form-group">
+              <label class="auth-label">FULL NAME</label>
+              <input type="text" class="auth-input" id="regName" placeholder="John Doe" required>
+            </div>
+            <div class="auth-form-group">
+              <label class="auth-label">EMAIL ADDRESS</label>
+              <input type="email" class="auth-input" id="regEmail" placeholder="your@email.com" required>
+            </div>
+            <div class="auth-form-group">
+              <label class="auth-label">PASSWORD</label>
+              <input type="password" class="auth-input" id="regPassword" placeholder="Min 6 characters" required minlength="6">
+            </div>
+            <div class="auth-form-group">
+              <label class="auth-label">CONFIRM PASSWORD</label>
+              <input type="password" class="auth-input" id="regConfirm" placeholder="••••••••" required minlength="6">
+            </div>
+            <button type="submit" class="submit-btn" id="regBtn">CREATE ACCOUNT</button>
+          </form>
+          <div class="auth-footer">
+            Already have an account? <a onclick="switchTab('login')">Sign in</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script src="../app-db.js"></script>
+  <script>
+    // Redirect if already logged in
+    if (AuthManager.isLoggedIn()) {
+      window.location.href = 'dashboard.html';
+    }
+
+    function switchTab(tab) {
+      document.querySelectorAll('.auth-tab').forEach((btn, idx) => {
+        btn.classList.toggle('active', (tab === 'login' && idx === 0) || (tab === 'register' && idx === 1));
+      });
+      document.getElementById('loginTab')?.classList.toggle('active', tab === 'login');
+      document.getElementById('registerTab')?.classList.toggle('active', tab === 'register');
+      clearAlert();
+    }
+
+    function showAlert(message, type = 'error') {
+      const box = document.getElementById('alertBox');
+      if (type === 'error') {
+        box.innerHTML = `<div class="error-msg show">${message}</div>`;
+      } else {
+        box.innerHTML = `<div class="success-msg show">${message}</div>`;
+      }
+    }
+
+    function clearAlert() {
+      document.getElementById('alertBox').innerHTML = '';
+    }
+
+    function setLoading(btnId, isLoading) {
+      const btn = document.getElementById(btnId);
+      btn.disabled = isLoading;
+      btn.classList.toggle('loading', isLoading);
+    }
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+
+      if (!email || !password) {
+        showAlert('Please enter email and password', 'error');
+        return;
+      }
+
+      setLoading('loginBtn', true);
+
+      const result = await AuthManager.login(email, password);
+      setLoading('loginBtn', false);
+
+      if (result.success) {
+        showAlert('✓ Login successful! Redirecting...', 'success');
+        setTimeout(() => {
+          window.location.href = 'dashboard.html';
+        }, 1500);
+      } else {
+        showAlert(result.message, 'error');
+      }
+    }
+
+    async function handleRegister(e) {
+      e.preventDefault();
+      const name = document.getElementById('regName').value.trim();
+      const email = document.getElementById('regEmail').value.trim();
+      const password = document.getElementById('regPassword').value;
+      const confirm = document.getElementById('regConfirm').value;
+
+      if (!name || !email || !password || !confirm) {
+        showAlert('Please fill all fields', 'error');
+        return;
+      }
+
+      if (password !== confirm) {
+        showAlert('Passwords do not match', 'error');
+        return;
+      }
+
+      if (password.length < 6) {
+        showAlert('Password must be at least 6 characters', 'error');
+        return;
+      }
+
+      setLoading('regBtn', true);
+
+      const result = await AuthManager.register(name, email, password);
+      setLoading('regBtn', false);
+
+      if (result.success) {
+        showAlert('✓ Account created! Redirecting to dashboard...', 'success');
+        setTimeout(() => {
+          window.location.href = 'dashboard.html';
+        }, 1500);
+      } else {
+        showAlert(result.message, 'error');
+      }
+    }
+  </script>
+</body>
+</html>

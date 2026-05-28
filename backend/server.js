@@ -885,16 +885,14 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // SERVER START
 // ============================================================================
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 8000;
 
-// Only start the server locally, not on Vercel serverless
-if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
-  app.listen(PORT, () => {
-    console.log(`\n🚀 TeslaInvest Backend Server running on port ${PORT}`);
-    console.log(`📍 API: http://localhost:${PORT}/api`);
-    console.log(`✅ CORS enabled for: ${process.env.FRONTEND_URL || 'http://localhost:3000'}\n`);
-  });
-}
+// Start the server - always listen, regardless of environment
+app.listen(PORT, () => {
+  console.log(`\n🚀 TeslaInvest Backend Server running on port ${PORT}`);
+  console.log(`📍 API: http://localhost:${PORT}/api`);
+  console.log(`✅ CORS enabled for: ${process.env.FRONTEND_URL || 'http://localhost:3000'}\n`);
+});
 
 // Public: Get Recent Activity Feed (for homepage)
 app.get('/api/public/activity-feed', async (req, res) => {

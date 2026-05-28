@@ -5,13 +5,18 @@
   "functions": {
     "backend/api/index.js": {
       "maxDuration": 60,
-      "memory": 512
+      "memory": 512,
+      "runtime": "nodejs18.x"
     }
   },
-  "rewrites": [
+  "routes": [
     {
-      "source": "/api/:path*",
-      "destination": "/api/:path*"
+      "src": "/api/(.*)",
+      "dest": "/backend/api/index.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
   ]
 }

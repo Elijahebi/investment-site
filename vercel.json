@@ -1,12 +1,5 @@
 {
   "version": 2,
   "buildCommand": "npm install && cd backend && npm install",
-  "outputDirectory": "pages",
-  "functions": {
-    "api/[...route].js": {
-      "maxDuration": 60,
-      "memory": 512,
-      "runtime": "nodejs18.x"
-    }
-  }
+  "outputDirectory": "pages"
 }

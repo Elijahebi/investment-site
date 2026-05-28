@@ -704,21 +704,52 @@ function sendReceiptToBackend(txid, amount, walletType, base64Proof, fileName, t
 function submitWithdraw(){
   const amount = parseFloat(document.getElementById('wdAmount').value);
   const wallet = document.getElementById('wdWallet').value.trim();
-  const user = AuthManager.getCurrentUser();
-  const bal = parseFloat(user.balance||0);
-  if(!amount||amount<50){ alert('Minimum withdrawal is $50.'); return; }
-  if(!wallet){ alert('Please enter your wallet address.'); return; }
-  if(amount > bal){ alert(`Insufficient balance. Available: $${bal.toFixed(2)}`); return; }
+  const token = localStorage.getItem('authToken');
+  
+  if(!amount||amount<50){ 
+    alert('Minimum withdrawal is $50.'); 
+    return; 
+  }
+  if(!wallet){ 
+    alert('Please enter your wallet address.'); 
+    return; 
+  }
+  
   const btn = document.getElementById('wdBtn');
   btn.innerHTML='<span class="spinner"></span> PROCESSING...';
   btn.disabled=true;
-  setTimeout(()=>{
-    closeModal('withdraw');
-    alert(`✅ Withdrawal request of $${amount.toFixed(2)} submitted!\n\nIt will be processed within 1–24 hours.`);
-    renderAll();
+  
+  fetch('https://investment-site-production.up.railway.app/api/user/withdraw', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      amount: amount,
+      walletAddress: wallet
+    })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if(data.success) {
+      closeModal('withdraw');
+      alert(`✅ Withdrawal request of $${amount.toFixed(2)} submitted!\n\nIt will be processed within 1–24 hours.`);
+      document.getElementById('wdAmount').value = '';
+      document.getElementById('wdWallet').value = '';
+      renderAll();
+    } else {
+      alert(`❌ Error: ${data.error}`);
+    }
     btn.innerHTML='REQUEST WITHDRAWAL';
     btn.disabled=false;
-  },1500);
+  })
+  .catch(e => {
+    console.error('Error:', e);
+    alert('❌ Network error');
+    btn.innerHTML='REQUEST WITHDRAWAL';
+    btn.disabled=false;
+  });
 }
 
 function logout(){ 

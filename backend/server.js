@@ -120,11 +120,25 @@ const activityLogSchema = new mongoose.Schema({
   updatedAt: { type: Date, default: Date.now }
 });
 
+// Withdrawal Request Schema
+const withdrawalSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  userEmail: { type: String, required: true },
+  amount: { type: Number, required: true, min: 50 },
+  walletAddress: { type: String, required: true },
+  status: { type: String, enum: ['pending', 'approved', 'rejected', 'completed'], default: 'pending' },
+  requestedAt: { type: Date, default: Date.now },
+  processedAt: { type: Date },
+  processedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  notes: { type: String }
+});
+
 // Create Models
 const User = mongoose.model('User', userSchema);
 const Investment = mongoose.model('Investment', investmentSchema);
 const PaymentReceipt = mongoose.model('PaymentReceipt', paymentReceiptSchema);
 const ActivityLog = mongoose.model('ActivityLog', activityLogSchema);
+const Withdrawal = mongoose.model('Withdrawal', withdrawalSchema);
 
 // ============================================================================
 // AUTH ENDPOINTS
@@ -598,6 +612,126 @@ app.post('/api/admin/reject-receipt/:receiptId', verifyToken, async (req, res) =
   }
 });
 
+// Admin: Get Pending Withdrawals
+app.get('/api/admin/pending-withdrawals', verifyToken, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.userId);
+    if (!user?.isAdmin) {
+      return res.status(403).json({ success: false, error: 'Admin access required' });
+    }
+
+    const withdrawals = await Withdrawal.find({ status: 'pending' })
+      .sort({ requestedAt: -1 });
+
+    res.json({
+      success: true,
+      withdrawals: withdrawals.map(w => ({
+        id: w._id,
+        userId: w.userId,
+        userEmail: w.userEmail,
+        amount: w.amount,
+        wallet: w.walletAddress,
+        status: w.status,
+        date: w.requestedAt
+      }))
+    });
+  } catch (err) {
+    console.error('Get pending withdrawals error:', err);
+    res.status(500).json({ success: false, error: 'Failed to fetch withdrawals' });
+  }
+});
+
+// Admin: Approve Withdrawal
+app.post('/api/admin/approve-withdrawal/:withdrawalId', verifyToken, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.userId);
+    if (!user?.isAdmin) {
+      return res.status(403).json({ success: false, error: 'Admin access required' });
+    }
+
+    const withdrawal = await Withdrawal.findByIdAndUpdate(
+      req.params.withdrawalId,
+      {
+        status: 'completed',
+        processedAt: new Date(),
+        processedBy: req.user.userId
+      },
+      { new: true }
+    );
+
+    if (!withdrawal) {
+      return res.status(404).json({ success: false, error: 'Withdrawal not found' });
+    }
+
+    // Log activity
+    const requestUser = await User.findById(withdrawal.userId);
+    await ActivityLog.create({
+      userId: withdrawal.userId,
+      userEmail: withdrawal.userEmail,
+      userName: requestUser.name,
+      actionType: 'withdrawal',
+      description: `Withdrawal of $${withdrawal.amount} approved and processed`,
+      amount: withdrawal.amount,
+      status: 'completed'
+    });
+
+    res.json({
+      success: true,
+      message: 'Withdrawal approved and processed',
+      withdrawal
+    });
+  } catch (err) {
+    console.error('Approve withdrawal error:', err);
+    res.status(500).json({ success: false, error: 'Failed to approve withdrawal' });
+  }
+});
+
+// Admin: Reject Withdrawal
+app.post('/api/admin/reject-withdrawal/:withdrawalId', verifyToken, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.userId);
+    if (!user?.isAdmin) {
+      return res.status(403).json({ success: false, error: 'Admin access required' });
+    }
+
+    const withdrawal = await Withdrawal.findByIdAndUpdate(
+      req.params.withdrawalId,
+      {
+        status: 'rejected',
+        processedAt: new Date(),
+        processedBy: req.user.userId,
+        notes: req.body.notes || 'Rejected by admin'
+      },
+      { new: true }
+    );
+
+    if (!withdrawal) {
+      return res.status(404).json({ success: false, error: 'Withdrawal not found' });
+    }
+
+    // Log activity
+    const requestUser = await User.findById(withdrawal.userId);
+    await ActivityLog.create({
+      userId: withdrawal.userId,
+      userEmail: withdrawal.userEmail,
+      userName: requestUser.name,
+      actionType: 'withdrawal',
+      description: `Withdrawal of $${withdrawal.amount} rejected`,
+      amount: withdrawal.amount,
+      status: 'rejected'
+    });
+
+    res.json({
+      success: true,
+      message: 'Withdrawal rejected',
+      withdrawal
+    });
+  } catch (err) {
+    console.error('Reject withdrawal error:', err);
+    res.status(500).json({ success: false, error: 'Failed to reject withdrawal' });
+  }
+});
+
 // Admin: Get ALL Receipts (pending + approved + rejected)
 app.get('/api/admin/all-receipts', verifyToken, async (req, res) => {
   try {
@@ -676,6 +810,95 @@ app.get('/api/user/stats', verifyToken, async (req, res) => {
   } catch (err) {
     console.error('Stats error:', err);
     res.status(500).json({ success: false, error: 'Failed to fetch stats' });
+  }
+});
+
+// User: Request Withdrawal
+app.post('/api/user/withdraw', verifyToken, async (req, res) => {
+  try {
+    const { amount, walletAddress } = req.body;
+    const user = await User.findById(req.user.userId);
+
+    if (!amount || amount < 50) {
+      return res.status(400).json({ success: false, error: 'Minimum withdrawal is $50' });
+    }
+
+    if (!walletAddress || walletAddress.trim() === '') {
+      return res.status(400).json({ success: false, error: 'Wallet address is required' });
+    }
+
+    // Check if user has sufficient balance
+    const approvedReceipts = await PaymentReceipt.find({ 
+      userId: req.user.userId, 
+      status: 'approved' 
+    });
+    const availableBalance = approvedReceipts.reduce((sum, r) => sum + (r.amount || 0), 0);
+
+    if (amount > availableBalance) {
+      return res.status(400).json({ 
+        success: false, 
+        error: `Insufficient balance. Available: $${availableBalance.toFixed(2)}` 
+      });
+    }
+
+    // Create withdrawal request
+    const withdrawal = new Withdrawal({
+      userId: req.user.userId,
+      userEmail: user.email,
+      amount,
+      walletAddress,
+      status: 'pending'
+    });
+
+    await withdrawal.save();
+
+    // Log the activity
+    const log = new ActivityLog({
+      userId: req.user.userId,
+      userEmail: user.email,
+      userName: user.name,
+      actionType: 'withdrawal',
+      description: `Requested withdrawal of $${amount} to ${walletAddress}`,
+      amount,
+      status: 'pending'
+    });
+    await log.save();
+
+    res.json({
+      success: true,
+      withdrawal: {
+        id: withdrawal._id,
+        amount: withdrawal.amount,
+        status: withdrawal.status,
+        requestedAt: withdrawal.requestedAt
+      }
+    });
+  } catch (err) {
+    console.error('Withdrawal error:', err);
+    res.status(500).json({ success: false, error: 'Failed to process withdrawal' });
+  }
+});
+
+// User: Get Withdrawals
+app.get('/api/user/withdrawals', verifyToken, async (req, res) => {
+  try {
+    const withdrawals = await Withdrawal.find({ userId: req.user.userId })
+      .sort({ requestedAt: -1 });
+
+    res.json({
+      success: true,
+      withdrawals: withdrawals.map(w => ({
+        id: w._id,
+        amount: w.amount,
+        wallet: w.walletAddress,
+        status: w.status,
+        date: w.requestedAt,
+        processedAt: w.processedAt
+      }))
+    });
+  } catch (err) {
+    console.error('Get withdrawals error:', err);
+    res.status(500).json({ success: false, error: 'Failed to fetch withdrawals' });
   }
 });
 

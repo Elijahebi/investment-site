@@ -55,7 +55,32 @@
   .hamburger span { width: 24px; height: 2px; background: #fff; transition: all 0.3s; }
 
   /* Hero */
-  .hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; padding: 80px 5% 60px; position: relative; z-index: 1; }
+  .hero { 
+    min-height: 100vh; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    text-align: center; 
+    padding: 80px 5% 60px; 
+    position: relative; 
+    z-index: 1;
+    background: linear-gradient(135deg, rgba(8,8,8,0.4) 0%, rgba(227,25,55,0.15) 100%),
+                url('./tesla.jpg') center/cover,
+                linear-gradient(to right, rgba(0,0,0,0.3), rgba(0,0,0,0.2));
+    background-blend-mode: multiply, overlay, normal;
+    background-attachment: fixed;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(8,8,8,0.5) 100%);
+    z-index: -1;
+  }
+  .hero > div {
+    position: relative;
+    z-index: 2;
+  }
   .hero-tag { display: inline-block; border: 1px solid rgba(227,25,55,0.4); color: var(--red); padding: 4px 16px; font-size: 0.75rem; letter-spacing: 3px; font-weight: 700; margin-bottom: 2rem; font-family: 'Rajdhani', sans-serif; }
   .hero h1 { font-size: clamp(2.5rem, 6vw, 5rem); font-weight: 700; line-height: 1.05; letter-spacing: 2px; margin-bottom: 1.5rem; }
   .hero h1 .accent-red { color: var(--red); }
@@ -95,9 +120,102 @@
   .section-title { text-align: center; font-size: 2rem; font-weight: 700; letter-spacing: 3px; margin-bottom: 0.5rem; }
   .section-sub { text-align: center; color: #555; font-size: 0.85rem; letter-spacing: 2px; margin-bottom: 4rem; font-family: 'Rajdhani', sans-serif; }
   .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
-  .feature-card { background: var(--glass); border: 1px solid var(--border); backdrop-filter: blur(10px); padding: 36px; transition: border-color 0.3s, transform 0.3s; }
+  .feature-card { 
+    background: var(--glass); 
+    border: 1px solid var(--border); 
+    backdrop-filter: blur(10px); 
+    padding: 36px; 
+    transition: border-color 0.3s, transform 0.3s; 
+    position: relative;
+    overflow: hidden;
+  }
+  .feature-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url('https://images.unsplash.com/photo-1639762681033-6461854b3eba?w=400&h=400&fit=crop') center/cover;
+    opacity: 0.05;
+    z-index: 0;
+  }
+  .feature-card > * {
+    position: relative;
+    z-index: 1;
+  }
   .feature-card:hover { border-color: rgba(227,25,55,0.3); transform: translateY(-4px); }
   .feature-icon { width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: rgba(227,25,55,0.1); border: 1px solid rgba(227,25,55,0.2); margin-bottom: 1.5rem; }
+
+  /* Showcase Sections */
+  .showcase-section {
+    min-height: 70vh;
+    display: flex;
+    align-items: center;
+    padding: 60px 5%;
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+  }
+  .showcase-section::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    opacity: 0.35;
+    z-index: 0;
+  }
+  .showcase-section::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(8,8,8,0.5) 0%, rgba(0,82,136,0.2) 100%);
+    z-index: 1;
+  }
+  .showcase-content {
+    position: relative;
+    z-index: 2;
+    max-width: 600px;
+  }
+  .showcase-section.left { text-align: left; }
+  .showcase-section.right { flex-direction: row-reverse; text-align: right; }
+  .showcase-title {
+    font-size: 3rem;
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+    letter-spacing: 2px;
+  }
+  .showcase-title span { color: var(--red); }
+  .showcase-desc {
+    font-size: 1.05rem;
+    color: #999;
+    line-height: 1.8;
+    margin-bottom: 2rem;
+  }
+  .showcase-cta {
+    display: inline-flex;
+    gap: 1rem;
+  }
+
+  /* Tesla Showcase */
+  .showcase-tesla::before {
+    background-image: url('./tesla.jpg');
+  }
+
+  /* SpaceX Showcase */
+  .showcase-spacex::before {
+    background-image: url('./spacex.jpg');
+  }
+
+  /* Starlink Showcase */
+  .showcase-starlink::before {
+    background-image: url('./starlink.jpg');
+  }
+
+  /* Elon Musk Showcase */
+  .showcase-elon::before {
+    background-image: url('./elon.webp');
+  }
+
   .feature-icon i { color: var(--red); font-size: 1.2rem; }
   .feature-card h3 { font-size: 1.1rem; font-weight: 700; letter-spacing: 1px; margin-bottom: 0.75rem; }
   .feature-card p { color: #666; font-size: 0.9rem; line-height: 1.7; }
@@ -178,6 +296,34 @@
     .social-links { justify-content: center; }
     .badges { gap: 1rem; }
     .badge { font-size: 0.75rem; }
+    
+    /* Mobile Showcase Sections */
+    .showcase-section {
+      min-height: auto;
+      padding: 50px 4%;
+      flex-direction: column !important;
+    }
+    .showcase-section.right {
+      flex-direction: column !important;
+    }
+    .showcase-content {
+      max-width: 100%;
+    }
+    .showcase-title {
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+    }
+    .showcase-desc {
+      font-size: 0.9rem;
+      margin-bottom: 1.5rem;
+    }
+    .showcase-cta {
+      flex-direction: column;
+    }
+    .showcase-cta .cta-btn {
+      width: 100%;
+      text-align: center;
+    }
   }
 
   @media (max-width: 480px) {
@@ -220,6 +366,24 @@
     .disclaimer { font-size: 0.65rem; }
     .social-links { gap: 0.75rem; }
     .social-links a { width: 32px; height: 32px; font-size: 0.75rem; }
+    
+    /* Mobile Showcase Sections */
+    .showcase-section {
+      min-height: auto;
+      padding: 40px 3%;
+    }
+    .showcase-title {
+      font-size: 1.4rem;
+      margin-bottom: 0.8rem;
+    }
+    .showcase-desc {
+      font-size: 0.85rem;
+      margin-bottom: 1.2rem;
+    }
+    .showcase-cta .cta-btn {
+      padding: 10px 20px;
+      font-size: 0.8rem;
+    }
   }
   
   /* New Sections CSS */
@@ -367,6 +531,50 @@
       <div class="feature-icon"><i class="fas fa-headset"></i></div>
       <h3>24/7 LIVE SUPPORT</h3>
       <p>Our team is available around the clock to assist with deposits, withdrawals, and investment guidance.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Tesla Showcase -->
+<section class="showcase-section showcase-tesla left">
+  <div class="showcase-content">
+    <h2 class="showcase-title">Revolutionizing <span>Transportation</span></h2>
+    <p class="showcase-desc">Tesla's mission to accelerate sustainable energy is reshaping global mobility. From EVs to energy storage, be part of the revolution that's transforming how the world moves.</p>
+    <div class="showcase-cta">
+      <a href="packages.html" class="cta-btn">INVEST IN TESLA</a>
+    </div>
+  </div>
+</section>
+
+<!-- SpaceX Showcase -->
+<section class="showcase-section showcase-spacex right">
+  <div class="showcase-content">
+    <h2 class="showcase-title">Reaching for the <span>Stars</span></h2>
+    <p class="showcase-desc">SpaceX is making humanity multi-planetary with Starship and Starlink. Invest in the future of space exploration and satellite internet that's connecting the entire planet.</p>
+    <div class="showcase-cta">
+      <a href="packages.html" class="cta-btn">INVEST IN SPACEX</a>
+    </div>
+  </div>
+</section>
+
+<!-- Starlink Showcase -->
+<section class="showcase-section showcase-starlink left">
+  <div class="showcase-content">
+    <h2 class="showcase-title">Global <span>Connectivity</span></h2>
+    <p class="showcase-desc">Starlink is providing high-speed internet to remote areas across the globe. Join the satellite revolution and invest in the infrastructure powering the connected future.</p>
+    <div class="showcase-cta">
+      <a href="packages.html" class="cta-btn">INVEST IN STARLINK</a>
+    </div>
+  </div>
+</section>
+
+<!-- Elon Musk Showcase -->
+<section class="showcase-section showcase-elon left">
+  <div class="showcase-content">
+    <h2 class="showcase-title">The Visionary <span>Leading Tomorrow</span></h2>
+    <p class="showcase-desc">Elon Musk's relentless innovation is shaping the future of humanity—from sustainable energy to interplanetary civilization. Invest alongside the leader who's making the impossible inevitable.</p>
+    <div class="showcase-cta">
+      <a href="packages.html" class="cta-btn">INVEST NOW</a>
     </div>
   </div>
 </section>

@@ -65,10 +65,11 @@
     position: relative; 
     z-index: 1;
     background: linear-gradient(135deg, rgba(8,8,8,0.4) 0%, rgba(227,25,55,0.15) 100%),
-                url('./tesla.jpg') center/cover,
+                url('./tesla.jpg') center/cover fixed,
                 linear-gradient(to right, rgba(0,0,0,0.3), rgba(0,0,0,0.2));
     background-blend-mode: multiply, overlay, normal;
-    background-attachment: fixed;
+    background-size: cover, cover, cover;
+    background-repeat: no-repeat, no-repeat, no-repeat;
   }
   .hero::before {
     content: '';
@@ -272,7 +273,7 @@
     .logo { font-size: 1rem; }
     .nav-links, .nav-cta { display: none; }
     .hamburger { display: flex; }
-    .hero { padding: 70px 4% 40px; min-height: 100vh; }
+    .hero { padding: 70px 4% 40px; min-height: 100vh; background-attachment: scroll; }
     .hero h1 { font-size: clamp(1.8rem, 5vw, 2.8rem); }
     .hero-sub { font-size: 0.85rem; }
     .hero-desc { font-size: 0.9rem; }
@@ -329,7 +330,7 @@
   @media (max-width: 480px) {
     nav { padding: 0 3%; }
     .logo { font-size: 0.85rem; letter-spacing: 1px; }
-    .hero { padding: 60px 3% 30px; }
+    .hero { padding: 60px 3% 30px; background-attachment: scroll; }
     .hero h1 { font-size: clamp(1.3rem, 4vw, 2rem); line-height: 1.1; margin-bottom: 1rem; }
     .hero-tag { font-size: 0.65rem; padding: 3px 12px; }
     .hero-sub { font-size: 0.75rem; }
